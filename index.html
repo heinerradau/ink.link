@@ -192,23 +192,20 @@ function dr(){
 x.beginPath();x.arc(b.x,b.y-cam,b.r,0,Math.PI*2);x.fill()
 }
 
-const INVITE_ENDPOINT="__INVITE_ENDPOINT__";
+const KLAVIYO_COMPANY_ID="VFrCC2";
+const KLAVIYO_LIST_ID="R8nMEy";
 const inviteForm=document.querySelector("#inviteForm"),inviteEmail=document.querySelector("#inviteEmail"),inviteSubmit=document.querySelector("#inviteSubmit"),formStatus=document.querySelector("#formStatus");
 inviteForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const email=inviteEmail.value.trim();
   if(!inviteEmail.checkValidity()){inviteEmail.reportValidity();return}
-  if(!INVITE_ENDPOINT || INVITE_ENDPOINT==="__INVITE_ENDPOINT__"){
-    formStatus.textContent="INVITATION SERVICE NOT CONNECTED YET";
-    return;
-  }
   inviteSubmit.disabled=true;
   formStatus.textContent="SENDING…";
   try{
-    const r=await fetch(INVITE_ENDPOINT,{
+    const r=await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO_COMPANY_ID}`,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email,source:"level-01-complete"})
+      headers:{"Content-Type":"application/json",revision:"2024-10-15"},
+      body:JSON.stringify({data:{type:"subscription",attributes:{profile:{data:{type:"profile",attributes:{email}}}},relationships:{list:{data:{type:"list",id:KLAVIYO_LIST_ID}}}}})
     });
     if(!r.ok)throw new Error("request failed");
     inviteEmail.value="";
