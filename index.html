@@ -41,13 +41,13 @@
 </div></div>
 <script>
 const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w");
-let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
-let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240;
+let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
+let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
 function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);floor=H-50;
-let mobile=W<=600;let gutter=mobile?Math.max(28,Math.min(52,W*.095)):0;playL=gutter;playR=W-gutter;build()}
-function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(W/2+dx,W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
-function cr(dx,y,r){sh.push({t:"c",x:W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];b={x:W/2,y:floor-180,vx:0,vy:80,r:11};
+playL=-2000;playR=WORLD_W+2000;build()}
+function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
+function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -127,7 +127,7 @@ function beginDeath(){
 }
 function splatNow(){
  death=2;deathT=0;respawnT=0;splat=0;
- impactX=b.x;respawnX=W/2;
+ impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
  burst();cam+=(0-cam)*.55;
 }
@@ -137,7 +137,7 @@ function up(dt){
    finaleT+=dt;
    if(finale===1){
      // Hold briefly inside the circle, then fire upward.
-     b.x=W/2;b.vx=0;b.vy=0;
+     b.x=WORLD_W/2;b.vx=0;b.vy=0;
      tcam=b.y-H*.52;cam+=(tcam-cam)*Math.min(1,dt*7);
      if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;}
    } else {
@@ -154,14 +154,14 @@ function up(dt){
      b.vy+=G*dt;b.y+=b.vy*dt;
      tcam=Math.min(0,b.y-H*.68);cam+=(tcam-cam)*Math.min(1,dt*11);
      if(b.y+b.r>=floor){
-       b.y=floor-b.r;b.vy=0;impactX=b.x;respawnX=W/2;burst();death=2;deathT=0;cam+=(0-cam)*.55;
+       b.y=floor-b.r;b.vy=0;impactX=b.x;respawnX=WORLD_W/2;burst();death=2;deathT=0;cam+=(0-cam)*.55;
      }
    } else {
      // Five-second recovery: splatter/rest, then grow from the white floor.
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
-       death=0;respawnT=0;recoveryHop=3;b.x=W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;
      }
    }
    return;
@@ -190,6 +190,7 @@ function up(dt){
  }
  maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
  let sy=b.y-cam;if(sy<H*.36)tcam=b.y-H*.36;else if(sy>H*.7)tcam=Math.min(0,b.y-H*.7);cam+=(tcam-cam)*.07;
+ let sx=b.x-camX;if(sx<W*.25)tcamX=b.x-W*.25;else if(sx>W*.75)tcamX=b.x-W*.75;camX+=(tcamX-camX)*.08;
  if(false)win.style.display="flex"
 }
 function dr(){
@@ -198,26 +199,26 @@ function dr(){
  x.strokeStyle="#fff";x.lineWidth=5;x.lineCap="round";
  let fy=floor-cam;
  if(fy>-10&&fy<H+10){x.beginPath();x.moveTo(0,fy);x.lineTo(W,fy);x.stroke()}
- for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x,y);x.lineTo(s.x+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x,y,s.r,0,Math.PI*2);x.stroke()}if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(W/2,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(W/2+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(W/2,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
+ for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x-camX,y);x.lineTo(s.x-camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x-camX,y,s.r,0,Math.PI*2);x.stroke()}if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(WORLD_W/2-camX,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(WORLD_W/2-camX+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(WORLD_W/2-camX,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
  // White splatter particles.
  x.fillStyle="#fff";
- for(let p of particles){x.globalAlpha=Math.max(0,Math.min(1,p.life));x.beginPath();x.arc(p.x,p.y-cam,p.r,0,Math.PI*2);x.fill()}x.globalAlpha=1;
+ for(let p of particles){x.globalAlpha=Math.max(0,Math.min(1,p.life));x.beginPath();x.arc(p.x-camX,p.y-cam,p.r,0,Math.PI*2);x.fill()}x.globalAlpha=1;
  if(death===2){
    let t=respawnT;
    // Impact spreads into a wide white puddle on the floor.
    if(t<3.45){
      let grow=Math.min(1,t/.22),fade=t>2.9?Math.max(0,(3.45-t)/.55):1;
-     x.globalAlpha=fade;x.beginPath();x.ellipse(impactX,floor-cam-1,52*grow+8,3.5+5*grow,0,0,Math.PI*2);x.fill();x.globalAlpha=1;
+     x.globalAlpha=fade;x.beginPath();x.ellipse(impactX-camX,floor-cam-1,52*grow+8,3.5+5*grow,0,0,Math.PI*2);x.fill();x.globalAlpha=1;
    } else {
      // Last 1.55s: the point grows visibly out of the floor.
      let q=Math.min(1,(t-3.45)/1.55),ease=1-Math.pow(1-q,3);
      let rr=b.r*ease,cy=floor-cam-rr;
-     x.beginPath();x.ellipse(W/2,cy,Math.max(2,rr*(1.28-.28*ease)),Math.max(1.5,rr),0,0,Math.PI*2);x.fill();
+     x.beginPath();x.ellipse(WORLD_W/2-camX,cy,Math.max(2,rr*(1.28-.28*ease)),Math.max(1.5,rr),0,0,Math.PI*2);x.fill();
    }
    return;
  }
- if(finale===2){x.save();let sp=Math.min(1,Math.abs(b.vy)/1500);for(let i=0;i<14;i++){let ox=(Math.random()-.5)*55,oy=18+Math.random()*150;x.globalAlpha=.08+Math.random()*.28;x.lineWidth=1+Math.random()*2.5;x.beginPath();x.moveTo(b.x+ox,b.y-cam+oy);x.lineTo(b.x+ox*.65,b.y-cam+oy+35+80*sp);x.stroke()}x.globalAlpha=.35;x.beginPath();x.ellipse(b.x,b.y-cam+18,7,34,0,0,Math.PI*2);x.fill();x.restore()}
-x.beginPath();x.arc(b.x,b.y-cam,b.r,0,Math.PI*2);x.fill()
+ if(finale===2){x.save();let sp=Math.min(1,Math.abs(b.vy)/1500);for(let i=0;i<14;i++){let ox=(Math.random()-.5)*55,oy=18+Math.random()*150;x.globalAlpha=.08+Math.random()*.28;x.lineWidth=1+Math.random()*2.5;x.beginPath();x.moveTo(b.x+ox-camX,b.y-cam+oy);x.lineTo(b.x+ox*.65-camX,b.y-cam+oy+35+80*sp);x.stroke()}x.globalAlpha=.35;x.beginPath();x.ellipse(b.x-camX,b.y-cam+18,7,34,0,0,Math.PI*2);x.fill();x.restore()}
+x.beginPath();x.arc(b.x-camX,b.y-cam,b.r,0,Math.PI*2);x.fill()
 }
 
 const KLAVIYO_COMPANY_ID="VFrCC2";
