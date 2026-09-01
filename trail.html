@@ -202,21 +202,35 @@ function splatNow(){
 const WORLD_CROP=260;
 function findHotspots(){
  if(trail.length<20)return null;
- const cell=70,cells={};
+ // A real "stuck here, tried again and again" spot isn't one pixel-sized dot — repeated jump
+ // attempts near one stubborn platform fan out over a real patch as the ball bounces up and falls
+ // back. So: bucket into a grid, then score each cell by itself plus its 8 neighbours (a cheap blur)
+ // so that whole bounce-and-retry patch reads as one hotspot instead of being split across cells.
+ const cell=90,cells={};
  for(const p of trail){
-   const k=Math.floor(p.x/cell)+","+Math.floor(p.y/cell);
-   let c=cells[k];if(!c){c={n:0,sx:0,sy:0};cells[k]=c}
+   const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
+   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0};cells[k]=c}
    c.n++;c.sx+=p.x;c.sy+=p.y;
  }
  const list=Object.values(cells);
+ for(const c of list){
+   let score=0;
+   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+     const n=cells[(c.cx+dx)+","+(c.cy+dy)];if(n)score+=n.n;
+   }
+   c.score=score;
+ }
  let hardest=list[0];
- for(const c of list)if(c.n>hardest.n)hardest=c;
- // "Happiest": light, quick traffic — excludes the very start, since everyone eases in slowly there.
+ for(const c of list)if(c.score>hardest.score)hardest=c;
+ // "Happiest": light, quick traffic — judged on the same blurred score (not the cell's own raw
+ // count), so a low-traffic edge cell that's still sitting right next to the struggle patch stays
+ // disqualified by its busy neighbours, instead of accidentally winning on a technicality. Also
+ // excludes the very start, since everyone eases in slowly there.
  const startY=trail[0].y;
  const flowCandidates=list.filter(c=>c!==hardest&&(startY-c.sy/c.n)>120);
  const pool=flowCandidates.length?flowCandidates:list.filter(c=>c!==hardest);
  let happiest=pool.length?pool[0]:hardest;
- for(const c of pool)if(c.n<happiest.n)happiest=c;
+ for(const c of pool)if(c.score<happiest.score)happiest=c;
  return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
 }
 function drawCrop(canvas,center){
@@ -257,7 +271,10 @@ function renderRecap(){
 }
 function up(dt){
  lastDt=dt;upParticles(dt);
- trail.push({x:b.x,y:b.y});
+ // Only record the trail while the ball is actually moving under player control (or the finale
+ // flourish) — not while it's lying still through the 5s death/recovery hold, which would otherwise
+ // dump ~300 near-duplicate points on the respawn spot per death and swamp the real struggle signal.
+ if(!death)trail.push({x:b.x,y:b.y});
  if(finale){
    finaleT+=dt;
    if(finale===1){
