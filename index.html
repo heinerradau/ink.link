@@ -27,8 +27,15 @@
 #exportBtn{display:none;margin:0 0 18px;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:11px 19px;font:10px monospace;letter-spacing:.12em;cursor:pointer;transition:.2s}
 #exportBtn:hover{background:var(--fg);color:var(--bg)}
 #exportBtn:active{opacity:.7}
+/* On-screen L/R keys — only shown on touch/coarse-pointer devices (phones, tablets). They set the
+   exact same K.l/K.r flags the keyboard does, so touch play uses the identical accel+friction feel
+   as desktop keyboard play, instead of the old instant-precision finger-drag steering. */
+#ctrlPad{display:none;position:fixed;bottom:26px;left:0;right:0;justify-content:space-between;padding:0 24px;z-index:6;pointer-events:none}
+@media (pointer:coarse){#ctrlPad{display:flex}}
+.ctrlBtn{pointer-events:auto;width:60px;height:60px;background:rgba(var(--fg-rgb),.07);border:2px solid rgba(var(--fg-rgb),.4);border-radius:5px;display:flex;align-items:center;justify-content:center;font:22px monospace;color:var(--fg);user-select:none;-webkit-user-select:none;touch-action:none}
+.ctrlBtn:active{background:rgba(var(--fg-rgb),.24);border-color:var(--fg)}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
-<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
+<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="ctrlPad"><button class="ctrlBtn" id="btnL" type="button" aria-label="Move left">◀</button><button class="ctrlBtn" id="btnR" type="button" aria-label="Move right">▶</button></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
 <div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
 <div id="recap">
@@ -56,7 +63,7 @@
 </div></div>
 <script>
 const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w"),sndBtn=document.querySelector("#sndBtn"),themeBtn=document.querySelector("#themeBtn");
-let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
+let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},last=performance.now();
 let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
 // Fork: the ball leaves a thin ink trail behind it, tracing the path it drew through the level.
 // Every point of the whole run is kept — across respawns too — and only cleared on a full rebuild (resize).
@@ -131,12 +138,16 @@ ln(-150,5845,300,0);ln(-170,5940,82,.40);ln(55,6095,84,-.42);
 cr(-55,6255,44);ln(-150,6335,300,0);ln(45,6425,90,.34);
 ln(-165,6575,92,-.36);cr(0,6760,78);ln(-110,6890,220,0)}
 addEventListener("keydown",e=>{if(e.key=="ArrowLeft"||e.key=="a")K.l=1;if(e.key=="ArrowRight"||e.key=="d")K.r=1});addEventListener("keyup",e=>{if(e.key=="ArrowLeft"||e.key=="a")K.l=0;if(e.key=="ArrowRight"||e.key=="d")K.r=0});
-c.onpointerdown=e=>{ptr=1;px=e.clientX;try{c.setPointerCapture(e.pointerId)}catch(_){}};
-c.onpointermove=e=>{if(ptr&&!death){b.vx=Math.max(-MAX,Math.min(MAX,b.vx+(e.clientX-px)*24));px=e.clientX}};
-function releasePointer(e){ptr=0;try{if(e&&c.hasPointerCapture(e.pointerId))c.releasePointerCapture(e.pointerId)}catch(_){}}
-c.onpointerup=c.onpointercancel=releasePointer;
-addEventListener("pointerup",releasePointer);
-addEventListener("blur",()=>{K.l=K.r=0;ptr=0});
+// Steering is keyboard-only on desktop (arrow keys / a,d) and on-screen-button-only on touch devices —
+// see #ctrlPad below. There is deliberately no direct mouse-drag or finger-drag steering of the ball
+// any more: that gave near-instant, high-precision velocity control (one swipe could snap straight to
+// max speed) which was a real, unfair advantage over the keyboard's slow accel-plus-friction model.
+// Both input paths now go through the exact same K.l/K.r flags and the exact same up(dt) physics.
+const btnL=document.querySelector("#btnL"),btnR=document.querySelector("#btnR");
+function padSet(k,v){return e=>{e.preventDefault();K[k]=v}}
+btnL.addEventListener("pointerdown",padSet("l",1));btnL.addEventListener("pointerup",padSet("l",0));btnL.addEventListener("pointercancel",padSet("l",0));btnL.addEventListener("pointerleave",padSet("l",0));
+btnR.addEventListener("pointerdown",padSet("r",1));btnR.addEventListener("pointerup",padSet("r",0));btnR.addEventListener("pointercancel",padSet("r",0));btnR.addEventListener("pointerleave",padSet("r",0));
+addEventListener("blur",()=>{K.l=K.r=0});
 function colLine(s){
  let co=Math.cos(s.a),si=Math.sin(s.a);
  let x1=s.x,y1=s.y,x2=x1+co*s.len,y2=y1+si*s.len;
@@ -199,7 +210,7 @@ function burst(){
 }
 function upParticles(dt){for(let p of particles){p.vy+=G*.48*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0)}
 function beginDeath(){
- death=1;deathT=0;respawnT=0;splat=0;b.vx=0;fallPeak=0;K.l=K.r=0;ptr=0;
+ death=1;deathT=0;respawnT=0;splat=0;b.vx=0;fallPeak=0;K.l=K.r=0;
  // Let the point visibly fall. Camera switches to a fast chase.
 }
 function splatNow(){
@@ -208,7 +219,7 @@ function splatNow(){
  deathSpots.push({x:b.x,y:b.y});
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
- b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
+ b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;
  burst();cam+=(0-cam)*.55;
 }
 // ===== end-of-run recap: the trail itself becomes a small artwork =====
@@ -369,7 +380,7 @@ function up(dt){
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
-     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";finale=3;b.vy=0;sfxWin();}
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";document.querySelector("#ctrlPad").style.display="none";finale=3;b.vy=0;sfxWin();}
    }
    // finale===3 (post-win): intentionally does nothing here anymore — the ball simply freezes in
    // place instead of continuing to fall forever, unseen, behind the win screen.
@@ -388,7 +399,7 @@ function up(dt){
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
-       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();lifeStart=performance.now();
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;sfxRespawn();lifeStart=performance.now();
      }
    }
    return;
