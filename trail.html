@@ -55,8 +55,8 @@ const rest=document.querySelector("#rest"),timerEl=document.querySelector("#time
 let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
 let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
 // Fork: the ball leaves a thin ink trail behind it, tracing the path it drew through the level.
+// Every point of the whole run is kept — across respawns too — and only cleared on a full rebuild (resize).
 let trail=[];
-const TRAIL_MAX=6000,TRAIL_TRIM_TO=4000;
 // ===== theme (dark/light) =====
 let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
@@ -258,7 +258,6 @@ function renderRecap(){
 function up(dt){
  lastDt=dt;upParticles(dt);
  trail.push({x:b.x,y:b.y});
- if(trail.length>TRAIL_MAX)trail.splice(0,trail.length-TRAIL_TRIM_TO);
  if(finale){
    finaleT+=dt;
    if(finale===1){
