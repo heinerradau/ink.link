@@ -1,0 +1,326 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1 — TRAIL</title>
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
+#invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
+#invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
+#invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
+#invite .lvl{font:10px/1 monospace;letter-spacing:.22em;opacity:.42;text-transform:uppercase}
+#finalScore{font:600 48px/1 monospace;letter-spacing:.03em;margin:18px 0 8px}
+#finalScore:before{content:"TIME ";display:block;font:9px/1 monospace;letter-spacing:.2em;opacity:.38;margin-bottom:8px}
+#topScores{font:10px/1.55 monospace;letter-spacing:.08em;opacity:.55;margin:0 auto 18px;white-space:pre-line}#scoreForm{display:flex;gap:8px;max-width:360px;margin:0 auto 8px}#scoreForm input{flex:1;min-width:0;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:13px 15px;font:12px monospace;outline:none}#scoreForm button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px monospace;letter-spacing:.08em;cursor:pointer}#scoreStatus{min-height:16px;margin-bottom:16px;font:10px monospace;opacity:.58}.repoHint{margin-top:9px;font:9px monospace;letter-spacing:.08em;opacity:.28}
+#join{display:inline-block;padding:13px 20px;border:1px solid var(--fg);border-radius:999px;color:var(--fg);text-decoration:none;font:12px/1 monospace;letter-spacing:.12em;transition:.2s}
+#join:hover{background:var(--fg);color:var(--bg)}
+#invite .hint{margin-top:14px;font:10px/1.4 monospace;opacity:.38}
+
+#invite .or{font:10px/1 monospace;letter-spacing:.16em;opacity:.32;margin:22px 0 12px;text-transform:uppercase}
+#invite form{display:flex;gap:8px;max-width:360px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+#invite input{flex:1 1 210px;min-width:0;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:13px 15px;font:12px/1 monospace;outline:none;box-sizing:border-box}
+#invite input:focus{border-color:var(--fg)}
+#invite input::placeholder{color:rgba(var(--fg-rgb),.38)}
+#invite button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px/1 monospace;letter-spacing:.08em;cursor:pointer}
+#invite button:disabled{opacity:.45;cursor:default}
+#formStatus{min-height:18px;margin-top:10px;font:10px/1.4 monospace;opacity:.58}
+@keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
+<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
+<div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
+<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div><div id="topScores"></div>
+<form id="scoreForm">
+  <input id="playerName" type="text" maxlength="24" autocomplete="nickname" placeholder="YOUR NAME" required aria-label="Player name">
+  <button id="scoreSubmit" type="submit">SAVE SCORE</button>
+</form>
+<div id="scoreStatus" aria-live="polite"></div>
+<h1>YOU MADE IT.<br>WELCOME TO INK.LINK.</h1>
+<p class="sub">This was only the first level.<br><br>What happens next, we can build together.</p>
+<a id="join" href="https://github.com/heinerradau/ink.link" target="_blank" rel="noopener noreferrer">SEE MORE →</a>
+<div class="repoHint">INK.LINK ON GITHUB</div><div class="or">HELP BUILD IT OR HEAR WHEN NEW LEVELS DROP</div>
+<form id="inviteForm">
+  <input id="inviteEmail" type="email" name="email" inputmode="email" autocomplete="email" placeholder="YOUR EMAIL" required aria-label="Email address">
+  <button id="inviteSubmit" type="submit">SEND REQUEST</button>
+</form>
+<div id="formStatus" aria-live="polite"></div>
+<div class="hint">continue drawing the world</div>
+</div></div>
+<script>
+const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w"),sndBtn=document.querySelector("#sndBtn"),themeBtn=document.querySelector("#themeBtn");
+let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
+let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
+// Fork: the ball leaves a thin ink trail behind it, tracing the path it drew through the level.
+let trail=[];
+const TRAIL_MAX=6000,TRAIL_TRIM_TO=4000;
+// ===== theme (dark/light) =====
+let theme="dark";
+try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
+const PALETTE={dark:{bg:"#050505",fg:"#fff"},light:{bg:"#f4f2ec",fg:"#16161a"}};
+function applyTheme(){document.documentElement.setAttribute("data-theme",theme);themeBtn.textContent=theme==="light"?"☀":"☾"}
+function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme()}
+applyTheme();themeBtn.addEventListener("click",e=>{e.stopPropagation();toggleTheme()});
+// ===== retro chiptune audio: eerie GB-style pulse/triangle synth in dark mode, brighter major-key synth in light mode, no samples/files =====
+let actx=null,mstG=null,sndOn=true,ambOn=false,ambTimer=null;
+try{sndOn=localStorage.getItem("il_snd")!=="0"}catch(_){}
+function ensureAudio(){if(actx)return;try{actx=new(window.AudioContext||window.webkitAudioContext)();mstG=actx.createGain();mstG.gain.value=sndOn?.5:0;mstG.connect(actx.destination);startAmbient()}catch(_){}}
+function wakeAudio(){if(!actx)ensureAudio();else if(actx.state==="suspended")actx.resume()}
+addEventListener("keydown",wakeAudio,{passive:true});addEventListener("pointerdown",wakeAudio,{passive:true});addEventListener("touchstart",wakeAudio,{passive:true});
+function tone(f,dur,type,vol,slide){if(!actx||!sndOn)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type||"square";o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(mstG);o.start(t);o.stop(t+dur+.02)}
+const LINE_NOTES=[196,233.08,261.63,293.66,349.23,392,440,523.25];
+function sfxBounce(strength,len,kind){
+ const s=Math.max(0,Math.min(1,strength));
+ if(kind==="circle"){
+  // Round, low "kick"-style hit for the circular milestone platforms — bigger circle = deeper thud.
+  const rr=len||45,base=70+Math.max(0,Math.min(1,1-(rr-30)/50))*70;
+  tone(base+35,.17+s*.05,"sine",.32+s*.22,base*.5);
+  return;
+ }
+ // Bars: pick a note from a fixed scale by platform length — short bar = high "hi-hat"-like tick,
+ // long bar = low "kick"-like thud — so climbing plays out like stepping through a beat sequence.
+ const ln=len||150,t=Math.max(0,Math.min(1,1-(ln-75)/240)),idx=Math.round(t*(LINE_NOTES.length-1)),f=LINE_NOTES[idx];
+ tone(f,.07+s*.03,"square",.24+s*.22,f*1.45);
+}
+function sfxLand(){tone(140,.09,"triangle",.2,90)}
+function sfxSplat(){if(!actx||!sndOn)return;const t=actx.currentTime,n=Math.floor(actx.sampleRate*.22),buf=actx.createBuffer(1,n,actx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const src=actx.createBufferSource();src.buffer=buf;const lp=actx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=850;const g=actx.createGain();g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);src.connect(lp);lp.connect(g);g.connect(mstG);src.start(t);tone(85,.28,"triangle",.24,45)}
+function sfxRespawn(){tone(330,.06,"square",.2,520);setTimeout(()=>tone(520,.07,"square",.18,760),70)}
+function sfxLaunch(){tone(120,.5,"sawtooth",.16,900)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.2,"triangle",.24),i*95))}
+const AMB_SCALE_DARK=[220,207.65,196,164.81,146.83,196,174.61,164.81];
+const AMB_SCALE_LIGHT=[523.25,587.33,659.25,783.99,880,987.77,659.25,783.99];
+let ambIdx=0;
+function ambNote(){
+ if(!actx||!sndOn){ambTimer=setTimeout(ambNote,1400);return}
+ const light=theme==="light",scale=light?AMB_SCALE_LIGHT:AMB_SCALE_DARK;
+ const t=actx.currentTime,f=scale[ambIdx++%scale.length],o=actx.createOscillator(),lfo=actx.createOscillator(),lfoG=actx.createGain(),g=actx.createGain(),dl=actx.createDelay(),fb=actx.createGain();
+ const dur=light?.9:2.1,attack=light?.02:.45,peak=light?.12:.09;
+ o.type="triangle";o.frequency.value=f;lfo.frequency.value=light?6:4.4;lfoG.gain.value=light?1.2:2.2;lfo.connect(lfoG);lfoG.connect(o.frequency);
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+attack);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+ dl.delayTime.value=light?.18:.44;fb.gain.value=light?.15:.36;dl.connect(fb);fb.connect(dl);
+ o.connect(g);g.connect(mstG);g.connect(dl);dl.connect(mstG);lfo.start(t);lfo.stop(t+dur+.1);o.start(t);o.stop(t+dur+.1);
+ ambTimer=setTimeout(ambNote,light?450+Math.random()*350:1700+Math.random()*1500);
+}
+function startAmbient(){if(ambOn)return;ambOn=true;ambNote()}
+function toggleSound(){sndOn=!sndOn;try{localStorage.setItem("il_snd",sndOn?"1":"0")}catch(_){}if(mstG)mstG.gain.value=sndOn?.5:0;if(sndOn)wakeAudio();sndBtn.textContent=sndOn?"♪":"✕";sndBtn.style.opacity=sndOn?.5:.3}
+sndBtn.textContent=sndOn?"♪":"✕";sndBtn.addEventListener("click",e=>{e.stopPropagation();toggleSound()});
+function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);floor=H-50;
+playL=-2000;playR=WORLD_W+2000;build()}
+function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
+function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+[[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
+cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
+ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
+cr(30,3646,46);ln(-155,3725,310,0);ln(-175,3808,82,.42);ln(55,3969,82,-.42);cr(-45,4131,32);ln(-150,4205,300,0);ln(55,4288,78,.32);ln(-155,4445,78,-.34);cr(55,4607,35);ln(-155,4680,310,0);ln(-125,4760,90,.20);ln(25,4913,110,-.12);ln(-80,5066,160,0);cr(0,5195,72);ln(-105,5325,210,0);
+ln(35,5465,105,.24);ln(-165,5605,95,-.30);cr(65,5765,38);
+ln(-150,5845,300,0);ln(-170,5940,82,.40);ln(55,6095,84,-.42);
+cr(-55,6255,44);ln(-150,6335,300,0);ln(45,6425,90,.34);
+ln(-165,6575,92,-.36);cr(0,6760,78);ln(-110,6890,220,0)}
+addEventListener("keydown",e=>{if(e.key=="ArrowLeft"||e.key=="a")K.l=1;if(e.key=="ArrowRight"||e.key=="d")K.r=1});addEventListener("keyup",e=>{if(e.key=="ArrowLeft"||e.key=="a")K.l=0;if(e.key=="ArrowRight"||e.key=="d")K.r=0});
+c.onpointerdown=e=>{ptr=1;px=e.clientX;try{c.setPointerCapture(e.pointerId)}catch(_){}};
+c.onpointermove=e=>{if(ptr&&!death){b.vx=Math.max(-MAX,Math.min(MAX,b.vx+(e.clientX-px)*24));px=e.clientX}};
+function releasePointer(e){ptr=0;try{if(e&&c.hasPointerCapture(e.pointerId))c.releasePointerCapture(e.pointerId)}catch(_){}}
+c.onpointerup=c.onpointercancel=releasePointer;
+addEventListener("pointerup",releasePointer);
+addEventListener("blur",()=>{K.l=K.r=0;ptr=0});
+function colLine(s){
+ let co=Math.cos(s.a),si=Math.sin(s.a);
+ let x1=s.x,y1=s.y,x2=x1+co*s.len,y2=y1+si*s.len;
+ if(b.vy<=0)return;
+
+ // Treat every bar as a finite capsule, not an infinitely thin line:
+ // ball radius + half of the visible stroke width define the real contact envelope.
+ const barHalf=2.5, hitR=b.r+barHalf;
+ const sx=x2-x1, sy=y2-y1, seg2=sx*sx+sy*sy||1;
+
+ // Closest point on the actual finite segment, including both rounded endpoints.
+ let t=((b.x-x1)*sx+(b.y-y1)*sy)/seg2;
+ t=Math.max(0,Math.min(1,t));
+ let qx=x1+t*sx,qy=y1+t*sy;
+ let dx=b.x-qx,dy=b.y-qy,d=Math.hypot(dx,dy);
+
+ // Continuous check from previous frame to current frame to avoid tunnelling at speed.
+ let prevX=b.x-b.vx*lastDt, prevY=b.y-b.vy*lastDt;
+ let pt=((prevX-x1)*sx+(prevY-y1)*sy)/seg2;
+ pt=Math.max(0,Math.min(1,pt));
+ let pqx=x1+pt*sx,pqy=y1+pt*sy;
+ let pdx=prevX-pqx,pdy=prevY-pqy,pd=Math.hypot(pdx,pdy);
+
+ if(d>hitR && pd>hitR)return;
+
+ // Preserve one-sided gameplay: only accept contacts from the top-facing side.
+ // This prevents the old underside "magnet", while still allowing exact corner hits.
+ let nx,ny;
+ if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
+ let upx=si,upy=-co;
+ if(nx*upx+ny*upy<-.05)return;
+
+ // Resolve exactly to the outer boundary of ball + rendered bar.
+ b.x=qx+nx*(hitR+.35);
+ b.y=qy+ny*(hitR+.35);
+
+ let dot=b.vx*nx+b.vy*ny;
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,"line")}
+
+ let fallBoost=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
+ let target=-B*.94*fallBoost;
+ if(b.vy>target)b.vy=target;
+ b.vx+=Math.sin(s.a)*B*.28;
+ b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
+ fallPeak=0;
+}function colCircle(s){
+ let dx=b.x-s.x,dy=b.y-s.y,d=Math.hypot(dx,dy),m=s.r+b.r;
+ if(d>=m||!d)return;
+ // Final large circle: entering its lower/inner area charges and launches the point upward.
+ if(s.r>=76 && !finale && (floor-s.y)>6600){
+   finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
+ }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
+let runStart=performance.now(),finishTime=0;let lastDt=1/60;
+function burst(){
+ particles=[];
+ for(let i=0;i<34;i++){let a=Math.PI+(Math.random()-.5)*Math.PI,sp=90+Math.random()*280;particles.push({x:impactX,y:floor-3,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:1.2+Math.random()*2.8,life:.65+Math.random()*.7})}
+}
+function upParticles(dt){for(let p of particles){p.vy+=G*.48*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0)}
+function beginDeath(){
+ death=1;deathT=0;respawnT=0;splat=0;b.vx=0;fallPeak=0;K.l=K.r=0;ptr=0;
+ // Let the point visibly fall. Camera switches to a fast chase.
+}
+function splatNow(){
+ sfxSplat();
+ death=2;deathT=0;respawnT=0;splat=0;
+ impactX=b.x;respawnX=WORLD_W/2;
+ b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
+ burst();cam+=(0-cam)*.55;
+}
+function up(dt){
+ lastDt=dt;upParticles(dt);
+ trail.push({x:b.x,y:b.y});
+ if(trail.length>TRAIL_MAX)trail.splice(0,trail.length-TRAIL_TRIM_TO);
+ if(finale){
+   finaleT+=dt;
+   if(finale===1){
+     // Hold briefly inside the circle, then fire upward.
+     b.x=WORLD_W/2;b.vx=0;b.vy=0;
+     tcam=b.y-H*.52;cam+=(tcam-cam)*Math.min(1,dt*7);
+     if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;sfxLaunch();}
+   } else {
+     b.vy+=G*.36*dt;b.y+=b.vy*dt;
+     tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
+     maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();recordScore(finishTime-runStart);win.style.display="flex";finale=3;b.vy=0;sfxWin();}
+   }
+   return;
+ }
+ if(death){
+   deathT+=dt;
+   if(death===1){
+     b.vy+=G*dt;b.y+=b.vy*dt;
+     tcam=Math.min(0,b.y-H*.68);cam+=(tcam-cam)*Math.min(1,dt*11);
+     if(b.y+b.r>=floor){
+       b.y=floor-b.r;b.vy=0;impactX=b.x;respawnX=WORLD_W/2;burst();death=2;deathT=0;cam+=(0-cam)*.55;sfxSplat();
+     }
+   } else {
+     // Five-second recovery: splatter/rest, then grow from the white floor.
+     tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
+     respawnT+=dt;
+     if(respawnT>=5){
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();
+     }
+   }
+   return;
+ }
+ // Sub-step the simulation when moving fast so the ball can never tunnel through a platform:
+ // each sub-step advances at most `maxStep` world units before collisions are re-checked.
+ const maxStep=7;
+ let steps=Math.min(48,Math.max(1,Math.ceil(Math.max(Math.abs(b.vx),Math.abs(b.vy))*dt/maxStep)));
+ let sdt=dt/steps;
+ lastDt=sdt;
+ for(let i=0;i<steps;i++){
+   b.vx+=((K.r-K.l)*1650)*sdt;b.vx*=Math.pow(.991,sdt*60);b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
+   b.vy+=G*sdt;if(b.vy>0)fallPeak=Math.max(fallPeak,b.vy);b.x+=b.vx*sdt;b.y+=b.vy*sdt;
+   if(b.x<playL+b.r){b.x=playL+b.r;b.vx=Math.abs(b.vx)*.72}if(b.x>playR-b.r){b.x=playR-b.r;b.vx=-Math.abs(b.vx)*.72}
+   for(let s of sh)s.t=="l"?colLine(s):colCircle(s);
+   maxh=Math.max(maxh,floor-b.y);
+   if(b.y+b.r>=floor){
+     if(recoveryHop>0){
+       b.y=floor-b.r-1;
+       let stage=4-recoveryHop;
+       b.vy=-B*(.48+stage*.22);
+       b.vx*=.88; recoveryHop--;
+     } else if(maxh>=DEATH_ARM_HEIGHT){
+       // Once the run has climbed past roughly the first two floors,
+       // hitting the floor causes an immediate splat on the first contact.
+       splatNow();return;
+     } else {
+       // Near the start, the floor is safe and behaves like a softer trampoline.
+       b.y=floor-b.r-1;
+       b.vy=-B*.78;
+       b.vx*=.86;
+       fallPeak=0;
+       sfxLand();
+     }
+     break;
+   }
+ }
+ he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
+ let sy=b.y-cam;if(sy<H*.36)tcam=b.y-H*.36;else if(sy>H*.7)tcam=Math.min(0,b.y-H*.7);cam+=(tcam-cam)*.07;
+ tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.25;camX+=(tcamX-camX)*.08;
+ if(false)win.style.display="flex"
+}
+function dr(){
+ rest.style.opacity=death===2?".35":"0";
+ const pal=PALETTE[theme];
+ x.fillStyle=pal.bg;x.fillRect(0,0,W,H);
+ let fy=floor-cam;
+ if(fy>-10&&fy<H+10){x.strokeStyle=pal.fg;x.lineWidth=5;x.lineCap="round";x.beginPath();x.moveTo(0,fy);x.lineTo(W,fy);x.stroke()}
+ // Thin ink trail: the path the ball has actually drawn through the level so far.
+ if(trail.length>1){
+   x.save();x.globalAlpha=.4;x.strokeStyle=pal.fg;x.lineWidth=1;x.lineJoin="round";x.lineCap="round";
+   x.beginPath();x.moveTo(trail[0].x-camX,trail[0].y-cam);
+   for(let i=1;i<trail.length;i++)x.lineTo(trail[i].x-camX,trail[i].y-cam);
+   x.stroke();x.restore();
+ }
+ x.strokeStyle=pal.fg;x.lineWidth=5;x.lineCap="round";
+ for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x-camX,y);x.lineTo(s.x-camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x-camX,y,s.r,0,Math.PI*2);x.stroke()}if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(WORLD_W/2-camX,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(WORLD_W/2-camX+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(WORLD_W/2-camX,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
+ // Splatter particles.
+ x.fillStyle=pal.fg;
+ for(let p of particles){x.globalAlpha=Math.max(0,Math.min(1,p.life));x.beginPath();x.arc(p.x-camX,p.y-cam,p.r,0,Math.PI*2);x.fill()}x.globalAlpha=1;
+ if(death===2){
+   let t=respawnT;
+   // Impact spreads into a wide white puddle on the floor.
+   if(t<3.45){
+     let grow=Math.min(1,t/.22),fade=t>2.9?Math.max(0,(3.45-t)/.55):1;
+     x.globalAlpha=fade;x.beginPath();x.ellipse(impactX-camX,floor-cam-1,52*grow+8,3.5+5*grow,0,0,Math.PI*2);x.fill();x.globalAlpha=1;
+   } else {
+     // Last 1.55s: the point grows visibly out of the floor.
+     let q=Math.min(1,(t-3.45)/1.55),ease=1-Math.pow(1-q,3);
+     let rr=b.r*ease,cy=floor-cam-rr;
+     x.beginPath();x.ellipse(WORLD_W/2-camX,cy,Math.max(2,rr*(1.28-.28*ease)),Math.max(1.5,rr),0,0,Math.PI*2);x.fill();
+   }
+   return;
+ }
+ if(finale===2){x.save();let sp=Math.min(1,Math.abs(b.vy)/1500);for(let i=0;i<14;i++){let ox=(Math.random()-.5)*55,oy=18+Math.random()*150;x.globalAlpha=.08+Math.random()*.28;x.lineWidth=1+Math.random()*2.5;x.beginPath();x.moveTo(b.x+ox-camX,b.y-cam+oy);x.lineTo(b.x+ox*.65-camX,b.y-cam+oy+35+80*sp);x.stroke()}x.globalAlpha=.35;x.beginPath();x.ellipse(b.x-camX,b.y-cam+18,7,34,0,0,Math.PI*2);x.fill();x.restore()}
+x.beginPath();x.arc(b.x-camX,b.y-cam,b.r,0,Math.PI*2);x.fill()
+}
+
+const KLAVIYO_COMPANY_ID="VFrCC2";
+const KLAVIYO_LIST_ID="R8nMEy";
+const inviteForm=document.querySelector("#inviteForm"),inviteEmail=document.querySelector("#inviteEmail"),inviteSubmit=document.querySelector("#inviteSubmit"),formStatus=document.querySelector("#formStatus");
+inviteForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email=inviteEmail.value.trim();
+  if(!inviteEmail.checkValidity()){inviteEmail.reportValidity();return}
+  inviteSubmit.disabled=true;formStatus.textContent="SENDING…";
+  try{
+    const r=await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO_COMPANY_ID}`,{
+      method:"POST",headers:{"Content-Type":"application/json",revision:"2024-10-15"},
+      body:JSON.stringify({data:{type:"subscription",attributes:{profile:{data:{type:"profile",attributes:{email}}}},relationships:{list:{data:{type:"list",id:KLAVIYO_LIST_ID}}}}})
+    });
+    if(!r.ok)throw new Error("request failed");
+    inviteEmail.value="";formStatus.textContent="REQUEST RECEIVED — SEE YOU ON THE OTHER SIDE.";
+  }catch(err){formStatus.textContent="COULDN'T SEND. PLEASE TRY AGAIN."}
+  finally{inviteSubmit.disabled=false}
+});
+
+function formatScore(ms){const sec=ms/1000,m=Math.floor(sec/60),ss=sec-m*60;return String(m).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0")}
+let pendingScore=0;
+function loadScores(){let q=[];try{q=JSON.parse(localStorage.getItem("inklink-l1-scores")||"[]")}catch(_){}return Array.isArray(q)?q:[]}
+function showScores(){let q=loadScores().filter(v=>v&&typeof v==="object"&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);document.querySelector("#topScores").textContent="TOP SCORES · THIS DEVICE\n"+(q.length?q.map((v,i)=>(i+1)+".  "+formatScore(v.ms)+"  "+v.name).join("\n"):"NO SAVED SCORES YET")}
+function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").textContent=formatScore(ms);showScores()}
+const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
+scoreForm.addEventListener("submit",e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}let q=loadScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l1-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent="SCORE SAVED.";scoreSubmit.disabled=true;playerName.disabled=true});
+function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
+</script>
