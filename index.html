@@ -1,5 +1,5 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1</title>
-<style>*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:#050505;color:#fff;touch-action:none}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:#333}#f{position:absolute;bottom:0;width:2px;background:#fff}#w{display:none;position:fixed;inset:0;background:#050505;align-items:center;justify-content:center;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:#fff;border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;left:67px;top:38px;box-shadow:-51px -17px 0 -5px #fff,55px 24px 0 -5px #fff}
+<style>*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:#050505;color:#fff;touch-action:none}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:#333}#f{position:absolute;bottom:0;width:2px;background:#fff}#w{display:none;position:fixed;inset:0;background:#050505;align-items:center;justify-content:center;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:#fff;border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;left:67px;top:38px;box-shadow:-51px -17px 0 -5px #fff,55px 24px 0 -5px #fff}
 #invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
 #invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
 #invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
@@ -20,7 +20,7 @@
 #invite button:disabled{opacity:.45;cursor:default}
 #formStatus{min-height:18px;margin-top:10px;font:10px/1.4 monospace;opacity:.58}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
-<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
+<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
 <div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div><div id="topScores"></div>
 <form id="scoreForm">
@@ -40,9 +40,28 @@
 <div class="hint">continue drawing the world</div>
 </div></div>
 <script>
-const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w");
+const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w"),sndBtn=document.querySelector("#sndBtn");
 let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
 let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
+// ===== retro chiptune audio: eerie GB-style pulse/triangle synth, no samples/files =====
+let actx=null,mstG=null,sndOn=true,ambOn=false,ambTimer=null;
+try{sndOn=localStorage.getItem("il_snd")!=="0"}catch(_){}
+function ensureAudio(){if(actx)return;try{actx=new(window.AudioContext||window.webkitAudioContext)();mstG=actx.createGain();mstG.gain.value=sndOn?.5:0;mstG.connect(actx.destination);startAmbient()}catch(_){}}
+function wakeAudio(){if(!actx)ensureAudio();else if(actx.state==="suspended")actx.resume()}
+addEventListener("keydown",wakeAudio,{passive:true});addEventListener("pointerdown",wakeAudio,{passive:true});addEventListener("touchstart",wakeAudio,{passive:true});
+function tone(f,dur,type,vol,slide){if(!actx||!sndOn)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type||"square";o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(mstG);o.start(t);o.stop(t+dur+.02)}
+function sfxBounce(strength){const s=Math.max(0,Math.min(1,strength)),f=190+s*420;tone(f,.075+s*.03,"square",.26+s*.22,f*1.55)}
+function sfxLand(){tone(140,.09,"triangle",.2,90)}
+function sfxSplat(){if(!actx||!sndOn)return;const t=actx.currentTime,n=Math.floor(actx.sampleRate*.22),buf=actx.createBuffer(1,n,actx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const src=actx.createBufferSource();src.buffer=buf;const lp=actx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=850;const g=actx.createGain();g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);src.connect(lp);lp.connect(g);g.connect(mstG);src.start(t);tone(85,.28,"triangle",.24,45)}
+function sfxRespawn(){tone(330,.06,"square",.2,520);setTimeout(()=>tone(520,.07,"square",.18,760),70)}
+function sfxLaunch(){tone(120,.5,"sawtooth",.16,900)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.2,"triangle",.24),i*95))}
+const AMB_SCALE=[220,207.65,196,164.81,146.83,196,174.61,164.81];
+let ambIdx=0;
+function ambNote(){if(!actx||!sndOn){ambTimer=setTimeout(ambNote,1400);return}const t=actx.currentTime,f=AMB_SCALE[ambIdx++%AMB_SCALE.length],o=actx.createOscillator(),lfo=actx.createOscillator(),lfoG=actx.createGain(),g=actx.createGain(),dl=actx.createDelay(),fb=actx.createGain();o.type="triangle";o.frequency.value=f;lfo.frequency.value=4.4;lfoG.gain.value=2.2;lfo.connect(lfoG);lfoG.connect(o.frequency);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09,t+.45);g.gain.exponentialRampToValueAtTime(.001,t+2.1);dl.delayTime.value=.44;fb.gain.value=.36;dl.connect(fb);fb.connect(dl);o.connect(g);g.connect(mstG);g.connect(dl);dl.connect(mstG);lfo.start(t);lfo.stop(t+2.2);o.start(t);o.stop(t+2.2);ambTimer=setTimeout(ambNote,1700+Math.random()*1500)}
+function startAmbient(){if(ambOn)return;ambOn=true;ambNote()}
+function toggleSound(){sndOn=!sndOn;try{localStorage.setItem("il_snd",sndOn?"1":"0")}catch(_){}if(mstG)mstG.gain.value=sndOn?.5:0;if(sndOn)wakeAudio();sndBtn.textContent=sndOn?"♪":"✕";sndBtn.style.opacity=sndOn?.5:.3}
+sndBtn.textContent=sndOn?"♪":"✕";sndBtn.addEventListener("click",e=>{e.stopPropagation();toggleSound()});
 function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);floor=H-50;
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
@@ -100,7 +119,7 @@ function colLine(s){
  b.y=qy+ny*(hitR+.35);
 
  let dot=b.vx*nx+b.vy*ny;
- if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny}
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100)}
 
  let fallBoost=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
  let target=-B*.94*fallBoost;
@@ -114,7 +133,7 @@ function colLine(s){
  // Final large circle: entering its lower/inner area charges and launches the point upward.
  if(s.r>=76 && !finale && (floor-s.y)>6600){
    finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
- }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
+ }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100);let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
 let runStart=performance.now(),finishTime=0;let lastDt=1/60;
 function burst(){
  particles=[];
@@ -126,6 +145,7 @@ function beginDeath(){
  // Let the point visibly fall. Camera switches to a fast chase.
 }
 function splatNow(){
+ sfxSplat();
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
@@ -139,12 +159,12 @@ function up(dt){
      // Hold briefly inside the circle, then fire upward.
      b.x=WORLD_W/2;b.vx=0;b.vy=0;
      tcam=b.y-H*.52;cam+=(tcam-cam)*Math.min(1,dt*7);
-     if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;}
+     if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;sfxLaunch();}
    } else {
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
-     if(finaleT>4.8&&!finishTime){finishTime=performance.now();recordScore(finishTime-runStart);win.style.display="flex";finale=3;b.vy=0;}
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();recordScore(finishTime-runStart);win.style.display="flex";finale=3;b.vy=0;sfxWin();}
    }
    return;
  }
@@ -154,14 +174,14 @@ function up(dt){
      b.vy+=G*dt;b.y+=b.vy*dt;
      tcam=Math.min(0,b.y-H*.68);cam+=(tcam-cam)*Math.min(1,dt*11);
      if(b.y+b.r>=floor){
-       b.y=floor-b.r;b.vy=0;impactX=b.x;respawnX=WORLD_W/2;burst();death=2;deathT=0;cam+=(0-cam)*.55;
+       b.y=floor-b.r;b.vy=0;impactX=b.x;respawnX=WORLD_W/2;burst();death=2;deathT=0;cam+=(0-cam)*.55;sfxSplat();
      }
    } else {
      // Five-second recovery: splatter/rest, then grow from the white floor.
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
-       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();
      }
    }
    return;
@@ -186,6 +206,7 @@ function up(dt){
      b.vy=-B*.78;
      b.vx*=.86;
      fallPeak=0;
+     sfxLand();
    }
  }
  maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
