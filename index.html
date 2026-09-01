@@ -77,6 +77,10 @@ let deathSpots=[];
 // How many trail points belonged to genuine mid-run climbing, before the finale flourish (flying up
 // into the ending circle) began. -1 means the run hasn't reached the finale yet (use the whole trail).
 let climbEnd=-1;
+// Every genuine platform bounce this run, tagged with which platform (by reference into sh) and how
+// far into the trail it happened — used by the recap to tell "smoothly cleared several different
+// platforms" apart from "kept missing and retrying the same one".
+let bounceLog=[];
 // ===== theme (dark/light) =====
 let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
@@ -131,7 +135,7 @@ function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.w
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -203,7 +207,7 @@ function colLine(s){
  b.y=qy+ny*(hitR+.35);
 
  let dot=b.vx*nx+b.vy*ny;
- if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,"line")}
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,"line");bounceLog.push({x:b.x,y:b.y,s,ti:trail.length})}
 
  let fallBoost=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
  let target=-B*.94*fallBoost;
@@ -219,7 +223,7 @@ function colLine(s){
    // Mark exactly where genuine climbing ends and the finale flourish begins, so the recap never
    // mistakes "flying up and away at the very end" for a calm, successful stretch of real play.
    finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;climbEnd=trail.length;return;
- }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
+ }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");bounceLog.push({x:b.x,y:b.y,s,ti:trail.length});let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
 let runStart=performance.now(),finishTime=0;let lastDt=1/60;
 let lifeStart=performance.now(),lifeDurations=[];
 function burst(){
@@ -262,12 +266,16 @@ function findHotspots(){
  }
  const list=Object.values(cells);
  for(const c of list){
-   let score=0,blurMinX=c.minX,blurMaxX=c.maxX;
+   let score=0,blurMinX=c.minX,blurMaxX=c.maxX,blurSY=0;
    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
      const n=cells[(c.cx+dx)+","+(c.cy+dy)];
-     if(n){score+=n.n;if(n.minX<blurMinX)blurMinX=n.minX;if(n.maxX>blurMaxX)blurMaxX=n.maxX}
+     if(n){score+=n.n;blurSY+=n.sy;if(n.minX<blurMinX)blurMinX=n.minX;if(n.maxX>blurMaxX)blurMaxX=n.maxX}
    }
-   c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;
+   // blurSY/score is the whole blurred patch's average height, not just this one raw cell's — used
+   // below so the flow-quality height comparison isn't thrown off by a patch that happens to straddle
+   // a grid line and get its points split unevenly across two or three raw cells (score is already the
+   // blurred point count, so it's also the right denominator here).
+   c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;c.blurAvgY=blurSY/score;
  }
  // A cell that's just one jump retraced straight up and down in place has almost no horizontal
  // spread — it reads as a single boring line in the crop, whichever category it would otherwise
@@ -315,18 +323,63 @@ function findHotspots(){
  const safeCandidates=spreadPool.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>START_MARGIN);
  const pool=safeCandidates.length?safeCandidates:spreadPool.filter(c=>c!==hardest&&!nearDeath(c));
  const finalPool=pool.length?pool:spreadPool.filter(c=>c!==hardest);
+ // Fewest lines isn't the whole story either — HOW those few lines got there matters. The best kind
+ // of happy moment is cleanly clearing several DIFFERENT platforms, each in close to a single bounce,
+ // rather than looping the same one spot. bounceLog tags every real bounce with which platform it
+ // hit, so bucket those into the same grid+blur neighbourhood as the trail cells and, per candidate,
+ // count how many distinct platforms were touched there and how many touches that took on average —
+ // more platforms, fewer touches each, is the ideal ("mehr Plattformen mit durchschnittlich weniger").
+ const bounceCells={};
+ for(const bnc of bounceLog){
+   if(climbEnd>=0&&bnc.ti>=climbEnd)continue; // exclude the post-win finale flourish, same as climbTrail
+   const bcx=Math.floor(bnc.x/cell),bcy=Math.floor(bnc.y/cell),bk=bcx+","+bcy;
+   (bounceCells[bk]||(bounceCells[bk]=[])).push(bnc);
+ }
+ const flowStatsOf=c=>{
+   const platforms=new Set();let touches=0;
+   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+     const arr=bounceCells[(c.cx+dx)+","+(c.cy+dy)];
+     if(!arr)continue;
+     for(const bnc of arr){platforms.add(bnc.s);touches++}
+   }
+   return{distinct:platforms.size,touches};
+ };
  let happiest=finalPool.length?finalPool[0]:hardest;
  if(finalPool.length){
    const heightOf=c=>startY-c.sy/c.n;
-   const scores=finalPool.map(c=>c.score),heights=finalPool.map(heightOf);
-   const minScore=Math.min(...scores),scoreRange=Math.max(...scores)-minScore||1;
-   const minH=Math.min(...heights),hRange=Math.max(...heights)-minH||1;
-   let bestCost=Infinity;
-   for(const c of finalPool){
-     const densityNorm=(c.score-minScore)/scoreRange; // 0 = fewest lines here, 1 = busiest
-     const heightNorm=(heightOf(c)-minH)/hRange; // 0 = lowest of the candidates, 1 = furthest climbed
-     const cost=densityNorm-heightNorm; // minimize: prefer few lines AND real progress, together
-     if(cost<bestCost){bestCost=cost;happiest=c}
+   // Candidates that actually show that ideal pattern — several distinct platforms, cleared with as
+   // few touches each as possible — are preferred outright. Height then decides between them
+   // hierarchically: a higher clean stretch always beats a lower one, full stop, with flow quality
+   // only breaking ties among spots that land in roughly the same top height band.
+   const flowPool=finalPool.filter(c=>flowStatsOf(c).distinct>=2);
+   if(flowPool.length){
+     // Use the blurred (whole-patch) height here rather than each raw cell's own — otherwise a patch
+     // that happens to straddle a grid line can end up with two raw sub-cells reporting slightly
+     // different heights purely from how its points were split, which would wrongly tip the "higher
+     // wins" comparison below.
+     const blurHeightOf=c=>startY-c.blurAvgY;
+     const flowHeights=flowPool.map(blurHeightOf);
+     const maxH=Math.max(...flowHeights),minFlowH=Math.min(...flowHeights);
+     const TOP_BAND=(maxH-minFlowH||1)*0.15;
+     const topTier=flowPool.filter(c=>maxH-blurHeightOf(c)<=TOP_BAND);
+     let bestFlow=-Infinity;
+     for(const c of topTier){
+       const f=flowStatsOf(c),flowScore=(f.distinct*f.distinct)/f.touches; // more platforms, fewer touches each = higher
+       if(flowScore>bestFlow){bestFlow=flowScore;happiest=c}
+     }
+   }else{
+     // No cell shows a clean multi-platform stretch (e.g. a very short run, or no bounce data at all)
+     // — fall back to the density/height blend so a happiest pick is still always returned.
+     const scores=finalPool.map(c=>c.score),heights=finalPool.map(heightOf);
+     const minScore=Math.min(...scores),scoreRange=Math.max(...scores)-minScore||1;
+     const minH=Math.min(...heights),hRange=Math.max(...heights)-minH||1;
+     let bestCost=Infinity;
+     for(const c of finalPool){
+       const densityNorm=(c.score-minScore)/scoreRange; // 0 = fewest lines here, 1 = busiest
+       const heightNorm=(heightOf(c)-minH)/hRange; // 0 = lowest of the candidates, 1 = furthest climbed
+       const cost=densityNorm-heightNorm; // minimize: prefer few lines AND real progress, together
+       if(cost<bestCost){bestCost=cost;happiest=c}
+     }
    }
  }
  return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
