@@ -19,10 +19,21 @@
 #invite button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px/1 monospace;letter-spacing:.08em;cursor:pointer}
 #invite button:disabled{opacity:.45;cursor:default}
 #formStatus{min-height:18px;margin-top:10px;font:10px/1.4 monospace;opacity:.58}
+#recap{display:none;gap:16px;justify-content:center;margin:6px 0 14px}
+.recapCol{display:flex;flex-direction:column;align-items:center;gap:7px}
+#recap canvas{width:200px;height:200px;border-radius:10px;border:1px solid rgba(var(--fg-rgb),.16);display:block}
+.recapLabel{font:9px/1 monospace;letter-spacing:.15em;opacity:.48;text-transform:uppercase;text-align:center}
+#avgLife{font:10px/1 monospace;letter-spacing:.13em;opacity:.5;margin:0 0 16px}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
 <canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
-<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div><div id="topScores"></div>
+<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
+<div id="recap">
+  <div class="recapCol"><canvas id="cropHard" width="200" height="200"></canvas><div class="recapLabel">Your hardest times</div></div>
+  <div class="recapCol"><canvas id="cropHappy" width="200" height="200"></canvas><div class="recapLabel">Your happiest moments</div></div>
+</div>
+<div id="avgLife"></div>
+<div id="topScores"></div>
 <form id="scoreForm">
   <input id="playerName" type="text" maxlength="24" autocomplete="nickname" placeholder="YOUR NAME" required aria-label="Player name">
   <button id="scoreSubmit" type="submit">SAVE SCORE</button>
@@ -169,6 +180,7 @@ function colLine(s){
    finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
  }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
 let runStart=performance.now(),finishTime=0;let lastDt=1/60;
+let lifeStart=performance.now(),lifeDurations=[];
 function burst(){
  particles=[];
  for(let i=0;i<34;i++){let a=Math.PI+(Math.random()-.5)*Math.PI,sp=90+Math.random()*280;particles.push({x:impactX,y:floor-3,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:1.2+Math.random()*2.8,life:.65+Math.random()*.7})}
@@ -180,10 +192,68 @@ function beginDeath(){
 }
 function splatNow(){
  sfxSplat();
+ if(lifeStart!=null){lifeDurations.push(performance.now()-lifeStart);lifeStart=null}
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
  burst();cam+=(0-cam)*.55;
+}
+// ===== end-of-run recap: the trail itself becomes a small artwork =====
+const WORLD_CROP=260;
+function findHotspots(){
+ if(trail.length<20)return null;
+ const cell=70,cells={};
+ for(const p of trail){
+   const k=Math.floor(p.x/cell)+","+Math.floor(p.y/cell);
+   let c=cells[k];if(!c){c={n:0,sx:0,sy:0};cells[k]=c}
+   c.n++;c.sx+=p.x;c.sy+=p.y;
+ }
+ const list=Object.values(cells);
+ let hardest=list[0];
+ for(const c of list)if(c.n>hardest.n)hardest=c;
+ // "Happiest": light, quick traffic — excludes the very start, since everyone eases in slowly there.
+ const startY=trail[0].y;
+ const flowCandidates=list.filter(c=>c!==hardest&&(startY-c.sy/c.n)>120);
+ const pool=flowCandidates.length?flowCandidates:list.filter(c=>c!==hardest);
+ let happiest=pool.length?pool[0]:hardest;
+ for(const c of pool)if(c.n<happiest.n)happiest=c;
+ return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
+}
+function drawCrop(canvas,center){
+ if(!canvas||!center)return;
+ const ctx2=canvas.getContext("2d"),size=canvas.width,pal=PALETTE[theme];
+ ctx2.setTransform(1,0,0,1,0,0);ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,size,size);
+ const scale=size/WORLD_CROP,half=WORLD_CROP/2,ox=center.x-half,oy=center.y-half;
+ ctx2.save();ctx2.scale(scale,scale);
+ ctx2.strokeStyle=pal.fg;ctx2.lineWidth=4.5;ctx2.lineCap="round";
+ for(const s of sh){
+   if(s.t==="l"){
+     const ex=s.x+Math.cos(s.a)*s.len,ey=s.y+Math.sin(s.a)*s.len;
+     if(Math.max(s.x,ex)<ox-40||Math.min(s.x,ex)>ox+WORLD_CROP+40||Math.max(s.y,ey)<oy-40||Math.min(s.y,ey)>oy+WORLD_CROP+40)continue;
+     ctx2.beginPath();ctx2.moveTo(s.x-ox,s.y-oy);ctx2.lineTo(ex-ox,ey-oy);ctx2.stroke();
+   } else {
+     if(s.x+s.r<ox-40||s.x-s.r>ox+WORLD_CROP+40||s.y+s.r<oy-40||s.y-s.r>oy+WORLD_CROP+40)continue;
+     ctx2.beginPath();ctx2.arc(s.x-ox,s.y-oy,s.r,0,Math.PI*2);ctx2.stroke();
+   }
+ }
+ ctx2.globalAlpha=.55;ctx2.lineWidth=1.4;ctx2.lineJoin="round";
+ let started=false;ctx2.beginPath();
+ for(const p of trail){
+   const inX=p.x>=ox-20&&p.x<=ox+WORLD_CROP+20,inY=p.y>=oy-20&&p.y<=oy+WORLD_CROP+20;
+   if(!inX||!inY){started=false;continue}
+   if(!started){ctx2.moveTo(p.x-ox,p.y-oy);started=true}else ctx2.lineTo(p.x-ox,p.y-oy);
+ }
+ ctx2.stroke();ctx2.restore();
+}
+function avgLifeMs(){return lifeDurations.length?lifeDurations.reduce((a,b)=>a+b,0)/lifeDurations.length:(finishTime-runStart)}
+function renderRecap(){
+ const hots=findHotspots(),recapEl=document.querySelector("#recap");
+ if(hots){
+   drawCrop(document.querySelector("#cropHard"),hots.hardest);
+   drawCrop(document.querySelector("#cropHappy"),hots.happiest);
+   recapEl.style.display="flex";
+ } else recapEl.style.display="none";
+ document.querySelector("#avgLife").textContent="YOUR AVERAGE LIFE: "+(avgLifeMs()/1000).toFixed(1)+"s";
 }
 function up(dt){
  lastDt=dt;upParticles(dt);
@@ -200,7 +270,7 @@ function up(dt){
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
-     if(finaleT>4.8&&!finishTime){finishTime=performance.now();recordScore(finishTime-runStart);win.style.display="flex";finale=3;b.vy=0;sfxWin();}
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";finale=3;b.vy=0;sfxWin();}
    }
    return;
  }
@@ -217,7 +287,7 @@ function up(dt){
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
-       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();lifeStart=performance.now();
      }
    }
    return;
