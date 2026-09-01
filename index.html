@@ -256,23 +256,44 @@ function findHotspots(){
  const cell=90,cells={};
  for(const p of climbTrail){
    const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
-   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0};cells[k]=c}
+   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0,minX:p.x,maxX:p.x};cells[k]=c}
    c.n++;c.sx+=p.x;c.sy+=p.y;
+   if(p.x<c.minX)c.minX=p.x;if(p.x>c.maxX)c.maxX=p.x;
  }
  const list=Object.values(cells);
  for(const c of list){
-   let score=0;
+   let score=0,blurMinX=c.minX,blurMaxX=c.maxX;
    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
-     const n=cells[(c.cx+dx)+","+(c.cy+dy)];if(n)score+=n.n;
+     const n=cells[(c.cx+dx)+","+(c.cy+dy)];
+     if(n){score+=n.n;if(n.minX<blurMinX)blurMinX=n.minX;if(n.maxX>blurMaxX)blurMaxX=n.maxX}
    }
-   c.score=score;
+   c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;
  }
- let hardest=list[0];
- for(const c of list)if(c.score>hardest.score)hardest=c;
+ // A cell that's just one jump retraced straight up and down in place has almost no horizontal
+ // spread — it reads as a single boring line in the crop, whichever category it would otherwise
+ // have won on point count alone. A genuine "tried this patch several times" spot always has real
+ // width to it: different attempts land at different spots. Judged over the same blurred 3x3
+ // neighbourhood as the score itself (not just the cell's own raw bounds), so a genuinely wide patch
+ // that happens to straddle a grid line still reads as wide instead of getting cut in half and
+ // disqualified by accident. Disqualify the narrow ones as hotspot centers entirely (falling back to
+ // the full list only if a run is too short/straight to have any qualifying cell at all — better a
+ // plain pick than none).
+ const SPREAD_MIN=24;
+ const genuine=c=>(c.blurMaxX-c.blurMinX)>=SPREAD_MIN;
+ let spreadPool=list.filter(genuine);
+ if(!spreadPool.length)spreadPool=list;
+ // Idle bouncing in place right at the spawn — waiting around, not climbing — packs a huge point
+ // count into one tiny patch and must never win "hardest" on that technicality alone; it has nothing
+ // to do with real difficulty. Require real progress past the start, same bar "happiest" uses below.
+ const startY=climbTrail[0].y;
+ const START_MARGIN=120;
+ const hardPool=spreadPool.filter(c=>(startY-c.sy/c.n)>START_MARGIN);
+ const hardCandidates=hardPool.length?hardPool:spreadPool;
+ let hardest=hardCandidates[0];
+ for(const c of hardCandidates)if(c.score>hardest.score)hardest=c;
  // "Happiest": light, quick traffic — judged on the same blurred score (not the cell's own raw
  // count), so a low-traffic edge cell that's still sitting right next to the struggle patch stays
- // disqualified by its busy neighbours, instead of accidentally winning on a technicality. Also
- // excludes the very start, since everyone eases in slowly there.
+ // disqualified by its busy neighbours, instead of accidentally winning on a technicality.
  //
  // Crucially, a low line count is NOT by itself a happy moment — a spot right before/after a crash
  // can look just as "clean" as a genuinely smooth run of successful jumps, simply because there
@@ -282,13 +303,32 @@ function findHotspots(){
  // eases in slowly there, so it's excluded too. Both exclusions are hard requirements, not just a
  // preference — they're only ever relaxed together, as an absolute last resort, so a very short or
  // very hard run still gets *some* happiest pick rather than none.
+ //
+ // And among whatever's left eligible, fewest lines alone isn't enough either: the early platforms
+ // are trivially easy for everyone, so a quiet cell down there isn't an impressive "happy moment" —
+ // it's just the tutorial. Score candidates on BOTH how few lines they have AND how far up they are
+ // (each normalised to this run's own range, so it adapts to a short or a long run alike), and take
+ // the best combination — a quiet stretch deep into the climb beats an equally quiet one near the
+ // bottom.
  const NEAR_DEATH=200;
  const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
- const startY=climbTrail[0].y;
- const safeCandidates=list.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>120);
- const pool=safeCandidates.length?safeCandidates:list.filter(c=>c!==hardest&&!nearDeath(c));
- let happiest=pool.length?pool[0]:hardest;
- for(const c of pool)if(c.score<happiest.score)happiest=c;
+ const safeCandidates=spreadPool.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>START_MARGIN);
+ const pool=safeCandidates.length?safeCandidates:spreadPool.filter(c=>c!==hardest&&!nearDeath(c));
+ const finalPool=pool.length?pool:spreadPool.filter(c=>c!==hardest);
+ let happiest=finalPool.length?finalPool[0]:hardest;
+ if(finalPool.length){
+   const heightOf=c=>startY-c.sy/c.n;
+   const scores=finalPool.map(c=>c.score),heights=finalPool.map(heightOf);
+   const minScore=Math.min(...scores),scoreRange=Math.max(...scores)-minScore||1;
+   const minH=Math.min(...heights),hRange=Math.max(...heights)-minH||1;
+   let bestCost=Infinity;
+   for(const c of finalPool){
+     const densityNorm=(c.score-minScore)/scoreRange; // 0 = fewest lines here, 1 = busiest
+     const heightNorm=(heightOf(c)-minH)/hRange; // 0 = lowest of the candidates, 1 = furthest climbed
+     const cost=densityNorm-heightNorm; // minimize: prefer few lines AND real progress, together
+     if(cost<bestCost){bestCost=cost;happiest=c}
+   }
+ }
  return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
 }
 function drawCrop(canvas,center){
