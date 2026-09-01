@@ -9,6 +9,8 @@
 #topScores{font:10px/1.55 monospace;letter-spacing:.08em;opacity:.55;margin:0 auto 18px;white-space:pre-line}#scoreForm{display:flex;gap:8px;max-width:360px;margin:0 auto 8px}#scoreForm input{flex:1;min-width:0;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:13px 15px;font:12px monospace;outline:none}#scoreForm button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px monospace;letter-spacing:.08em;cursor:pointer}#scoreStatus{min-height:16px;margin-bottom:16px;font:10px monospace;opacity:.58}.repoHint{margin-top:9px;font:9px monospace;letter-spacing:.08em;opacity:.28}
 #join{display:inline-block;padding:13px 20px;border:1px solid var(--fg);border-radius:999px;color:var(--fg);text-decoration:none;font:12px/1 monospace;letter-spacing:.12em;transition:.2s}
 #join:hover{background:var(--fg);color:var(--bg)}
+#playAgainBtn{display:inline-block;margin:4px 0 24px;background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 22px;font:11px/1 monospace;letter-spacing:.12em;cursor:pointer;transition:.2s}
+#playAgainBtn:hover{opacity:.82}
 #invite .hint{margin-top:14px;font:10px/1.4 monospace;opacity:.38}
 
 #invite .or{font:10px/1 monospace;letter-spacing:.16em;opacity:.32;margin:22px 0 12px;text-transform:uppercase}
@@ -50,6 +52,7 @@
   <button id="scoreSubmit" type="submit">SAVE SCORE</button>
 </form>
 <div id="scoreStatus" aria-live="polite"></div>
+<button id="playAgainBtn" type="button">PLAY AGAIN ↻</button>
 <h1>YOU MADE IT.<br>WELCOME TO INK.LINK.</h1>
 <p class="sub">This was only the first level.<br><br>What happens next, we can build together.</p>
 <a id="join" href="https://github.com/heinerradau/ink.link" target="_blank" rel="noopener noreferrer">SEE MORE →</a>
@@ -505,5 +508,6 @@ function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").t
 const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
 scoreForm.addEventListener("submit",e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}let q=loadScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l1-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent="SCORE SAVED.";scoreSubmit.disabled=true;playerName.disabled=true});
 document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagation();exportLifeOverview()});
+document.querySelector("#playAgainBtn").addEventListener("click",e=>{e.stopPropagation();location.reload()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
 </script>
