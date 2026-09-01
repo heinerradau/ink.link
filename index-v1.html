@@ -1,5 +1,5 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1</title>
-<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
 #invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
 #invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
 #invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
@@ -19,25 +19,10 @@
 #invite button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px/1 monospace;letter-spacing:.08em;cursor:pointer}
 #invite button:disabled{opacity:.45;cursor:default}
 #formStatus{min-height:18px;margin-top:10px;font:10px/1.4 monospace;opacity:.58}
-#recap{display:none;gap:16px;justify-content:center;margin:6px 0 14px}
-.recapCol{display:flex;flex-direction:column;align-items:center;gap:7px}
-#recap canvas{width:200px;height:200px;border-radius:10px;border:1px solid rgba(var(--fg-rgb),.16);display:block}
-.recapLabel{font:9px/1 monospace;letter-spacing:.15em;opacity:.48;text-transform:uppercase;text-align:center}
-#avgLife{font:10px/1 monospace;letter-spacing:.13em;opacity:.5;margin:0 0 10px}
-#exportBtn{display:none;margin:0 0 18px;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:11px 19px;font:10px monospace;letter-spacing:.12em;cursor:pointer;transition:.2s}
-#exportBtn:hover{background:var(--fg);color:var(--bg)}
-#exportBtn:active{opacity:.7}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
 <canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
-<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
-<div id="recap">
-  <div class="recapCol"><canvas id="cropHard" width="200" height="200"></canvas><div class="recapLabel">Your hardest times</div></div>
-  <div class="recapCol"><canvas id="cropHappy" width="200" height="200"></canvas><div class="recapLabel">Your happiest moments</div></div>
-</div>
-<div id="avgLife"></div>
-<button id="exportBtn" type="button">EXPORT LIFE OVERVIEW ↓</button>
-<div id="topScores"></div>
+<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div><div id="topScores"></div>
 <form id="scoreForm">
   <input id="playerName" type="text" maxlength="24" autocomplete="nickname" placeholder="YOUR NAME" required aria-label="Player name">
   <button id="scoreSubmit" type="submit">SAVE SCORE</button>
@@ -58,15 +43,6 @@
 const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w"),sndBtn=document.querySelector("#sndBtn"),themeBtn=document.querySelector("#themeBtn");
 let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},ptr=0,px=0,last=performance.now();
 let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240,WORLD_W=900;
-// Fork: the ball leaves a thin ink trail behind it, tracing the path it drew through the level.
-// Every point of the whole run is kept — across respawns too — and only cleared on a full rebuild (resize).
-let trail=[];
-// Where every death happened this run — used to keep a spot right next to a crash from ever being
-// picked as a "happiest moment" just because it happens to have few crossing lines near it.
-let deathSpots=[];
-// How many trail points belonged to genuine mid-run climbing, before the finale flourish (flying up
-// into the ending circle) began. -1 means the run hasn't reached the finale yet (use the whole trail).
-let climbEnd=-1;
 // ===== theme (dark/light) =====
 let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
@@ -121,7 +97,7 @@ function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.w
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -187,12 +163,9 @@ function colLine(s){
  if(d>=m||!d)return;
  // Final large circle: entering its lower/inner area charges and launches the point upward.
  if(s.r>=76 && !finale && (floor-s.y)>6600){
-   // Mark exactly where genuine climbing ends and the finale flourish begins, so the recap never
-   // mistakes "flying up and away at the very end" for a calm, successful stretch of real play.
-   finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;climbEnd=trail.length;return;
+   finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
  }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
 let runStart=performance.now(),finishTime=0;let lastDt=1/60;
-let lifeStart=performance.now(),lifeDurations=[];
 function burst(){
  particles=[];
  for(let i=0;i<34;i++){let a=Math.PI+(Math.random()-.5)*Math.PI,sp=90+Math.random()*280;particles.push({x:impactX,y:floor-3,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:1.2+Math.random()*2.8,life:.65+Math.random()*.7})}
@@ -204,160 +177,13 @@ function beginDeath(){
 }
 function splatNow(){
  sfxSplat();
- if(lifeStart!=null){lifeDurations.push(performance.now()-lifeStart);lifeStart=null}
- deathSpots.push({x:b.x,y:b.y});
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
  burst();cam+=(0-cam)*.55;
 }
-// ===== end-of-run recap: the trail itself becomes a small artwork =====
-const WORLD_CROP=440;
-function findHotspots(){
- // Only genuine mid-run climbing is eligible — not the finale flourish (flying up into the ending
- // circle after winning). That flight is fast, sparse and always successful by construction, so on
- // raw line count alone it would look like the cleanest "happiest" stretch of the whole run every
- // single time, which isn't what it is: it's the victory lap, not a moment of skilled play.
- const climbTrail=climbEnd>=0?trail.slice(0,climbEnd):trail;
- if(climbTrail.length<20)return null;
- // A real "stuck here, tried again and again" spot isn't one pixel-sized dot — repeated jump
- // attempts near one stubborn platform fan out over a real patch as the ball bounces up and falls
- // back. So: bucket into a grid, then score each cell by itself plus its 8 neighbours (a cheap blur)
- // so that whole bounce-and-retry patch reads as one hotspot instead of being split across cells.
- const cell=90,cells={};
- for(const p of climbTrail){
-   const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
-   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0};cells[k]=c}
-   c.n++;c.sx+=p.x;c.sy+=p.y;
- }
- const list=Object.values(cells);
- for(const c of list){
-   let score=0;
-   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
-     const n=cells[(c.cx+dx)+","+(c.cy+dy)];if(n)score+=n.n;
-   }
-   c.score=score;
- }
- let hardest=list[0];
- for(const c of list)if(c.score>hardest.score)hardest=c;
- // "Happiest": light, quick traffic — judged on the same blurred score (not the cell's own raw
- // count), so a low-traffic edge cell that's still sitting right next to the struggle patch stays
- // disqualified by its busy neighbours, instead of accidentally winning on a technicality. Also
- // excludes the very start, since everyone eases in slowly there.
- //
- // Crucially, a low line count is NOT by itself a happy moment — a spot right before/after a crash
- // can look just as "clean" as a genuinely smooth run of successful jumps, simply because there
- // wasn't much time to lay down lines there. So any cell within reach of a real death this run is
- // disqualified outright, however few crossings it has: happy means strung-together successful
- // jumps, not "happened to die before drawing much." Same logic for the very start (spawn) — everyone
- // eases in slowly there, so it's excluded too. Both exclusions are hard requirements, not just a
- // preference — they're only ever relaxed together, as an absolute last resort, so a very short or
- // very hard run still gets *some* happiest pick rather than none.
- const NEAR_DEATH=200;
- const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
- const startY=climbTrail[0].y;
- const safeCandidates=list.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>120);
- const pool=safeCandidates.length?safeCandidates:list.filter(c=>c!==hardest&&!nearDeath(c));
- let happiest=pool.length?pool[0]:hardest;
- for(const c of pool)if(c.score<happiest.score)happiest=c;
- return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
-}
-function drawCrop(canvas,center){
- if(!canvas||!center)return;
- const ctx2=canvas.getContext("2d"),size=canvas.width,pal=PALETTE[theme];
- ctx2.setTransform(1,0,0,1,0,0);ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,size,size);
- const scale=size/WORLD_CROP,half=WORLD_CROP/2,ox=center.x-half,oy=center.y-half;
- ctx2.save();ctx2.scale(scale,scale);
- // Line widths are specified in device pixels here, not world units — WORLD_CROP controls how far
- // zoomed out the crop is, and without dividing by scale, a wider (more zoomed-out) crop would draw
- // thinner, fainter strokes purely as a side effect of showing more of the level.
- ctx2.strokeStyle=pal.fg;ctx2.lineWidth=3.5/scale;ctx2.lineCap="round";
- for(const s of sh){
-   if(s.t==="l"){
-     const ex=s.x+Math.cos(s.a)*s.len,ey=s.y+Math.sin(s.a)*s.len;
-     if(Math.max(s.x,ex)<ox-40||Math.min(s.x,ex)>ox+WORLD_CROP+40||Math.max(s.y,ey)<oy-40||Math.min(s.y,ey)>oy+WORLD_CROP+40)continue;
-     ctx2.beginPath();ctx2.moveTo(s.x-ox,s.y-oy);ctx2.lineTo(ex-ox,ey-oy);ctx2.stroke();
-   } else {
-     if(s.x+s.r<ox-40||s.x-s.r>ox+WORLD_CROP+40||s.y+s.r<oy-40||s.y-s.r>oy+WORLD_CROP+40)continue;
-     ctx2.beginPath();ctx2.arc(s.x-ox,s.y-oy,s.r,0,Math.PI*2);ctx2.stroke();
-   }
- }
- ctx2.globalAlpha=.55;ctx2.lineWidth=1.3/scale;ctx2.lineJoin="round";
- let started=false;ctx2.beginPath();
- for(const p of trail){
-   const inX=p.x>=ox-20&&p.x<=ox+WORLD_CROP+20,inY=p.y>=oy-20&&p.y<=oy+WORLD_CROP+20;
-   if(!inX||!inY){started=false;continue}
-   if(!started){ctx2.moveTo(p.x-ox,p.y-oy);started=true}else ctx2.lineTo(p.x-ox,p.y-oy);
- }
- ctx2.stroke();ctx2.restore();
-}
-function avgLifeMs(){return lifeDurations.length?lifeDurations.reduce((a,b)=>a+b,0)/lifeDurations.length:(finishTime-runStart)}
-function renderRecap(){
- const hots=findHotspots(),recapEl=document.querySelector("#recap");
- if(hots){
-   drawCrop(document.querySelector("#cropHard"),hots.hardest);
-   drawCrop(document.querySelector("#cropHappy"),hots.happiest);
-   recapEl.style.display="flex";
- } else recapEl.style.display="none";
- document.querySelector("#avgLife").textContent="YOUR AVERAGE LIFE: "+(avgLifeMs()/1000).toFixed(1)+"s";
- document.querySelector("#exportBtn").style.display=trail.length>1?"inline-block":"none";
-}
-// Renders the WHOLE run's trail (every line, every respawn, start to finish) into one image and
-// offers it as a PNG download — the two small crops above are a taste, this is the full drawing.
-function exportLifeOverview(){
- if(trail.length<2)return;
- let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
- for(const p of trail){if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y}
- const pad=90;minX-=pad;maxX+=pad;minY-=pad;maxY+=pad;
- const wW=Math.max(1,maxX-minX),wH=Math.max(1,maxY-minY);
- const MAXDIM=1600,MINDIM=520;
- let scale=Math.min(MAXDIM/wW,MAXDIM/wH);scale=Math.min(scale,3);
- const drawW=wW*scale,drawH=wH*scale;
- const cw=Math.max(MINDIM,Math.round(drawW)),ch=Math.max(MINDIM,Math.round(drawH));
- const offX=(cw-drawW)/2,offY=(ch-drawH)/2;
- const cnv=document.createElement("canvas");cnv.width=cw;cnv.height=ch;
- const ctx2=cnv.getContext("2d"),pal=PALETTE[theme];
- ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,cw,ch);
- ctx2.save();ctx2.translate(offX,offY);ctx2.scale(scale,scale);ctx2.translate(-minX,-minY);
- ctx2.strokeStyle=pal.fg;ctx2.lineWidth=5/scale;ctx2.lineCap="round";ctx2.globalAlpha=1;
- for(const s of sh){
-   if(s.t==="l"){
-     const ex=s.x+Math.cos(s.a)*s.len,ey=s.y+Math.sin(s.a)*s.len;
-     if(Math.max(s.x,ex)<minX-40||Math.min(s.x,ex)>maxX+40||Math.max(s.y,ey)<minY-40||Math.min(s.y,ey)>maxY+40)continue;
-     ctx2.beginPath();ctx2.moveTo(s.x,s.y);ctx2.lineTo(ex,ey);ctx2.stroke();
-   } else {
-     if(s.x+s.r<minX-40||s.x-s.r>maxX+40||s.y+s.r<minY-40||s.y-s.r>maxY+40)continue;
-     ctx2.beginPath();ctx2.arc(s.x,s.y,s.r,0,Math.PI*2);ctx2.stroke();
-   }
- }
- // The trail itself, start to finish — but a big jump between consecutive points means a
- // death/respawn happened there (recording is paused through the hold), so break the line rather
- // than drawing a fake connector stroke straight across the canvas.
- ctx2.globalAlpha=.6;ctx2.lineWidth=1.6/scale;ctx2.lineJoin="round";ctx2.lineCap="round";
- ctx2.beginPath();let prev=null;
- for(const p of trail){
-   if(!prev||Math.hypot(p.x-prev.x,p.y-prev.y)>140)ctx2.moveTo(p.x,p.y);else ctx2.lineTo(p.x,p.y);
-   prev=p;
- }
- ctx2.stroke();ctx2.restore();
- cnv.toBlob(blob=>{
-   if(!blob)return;
-   const url=URL.createObjectURL(blob),a=document.createElement("a");
-   a.href=url;a.download="ink-link-life-overview.png";
-   document.body.appendChild(a);a.click();document.body.removeChild(a);
-   setTimeout(()=>URL.revokeObjectURL(url),1500);
- },"image/png");
-}
 function up(dt){
  lastDt=dt;upParticles(dt);
- // Only record the trail while the ball is actually moving under player control (or the finale
- // launch, finale===2) — not while it's lying still through the 5s death/recovery hold (which would
- // otherwise dump ~300 near-duplicate points on the respawn spot per death), not during the brief
- // pre-launch hold (finale===1), and not after the win (finale===3) — post-win the ball is left to
- // fall under unbounded gravity in the background while the player reads the recap screen, and
- // without this guard that silently added tens of thousands of world-units of runaway "fall" to the
- // trail for every second the recap stayed open, swamping the real climb in the exported artwork.
- if(!death&&finale!==1&&finale!==3)trail.push({x:b.x,y:b.y});
  if(finale){
    finaleT+=dt;
    if(finale===1){
@@ -365,14 +191,12 @@ function up(dt){
      b.x=WORLD_W/2;b.vx=0;b.vy=0;
      tcam=b.y-H*.52;cam+=(tcam-cam)*Math.min(1,dt*7);
      if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;sfxLaunch();}
-   } else if(finale===2){
+   } else {
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
-     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";finale=3;b.vy=0;sfxWin();}
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();recordScore(finishTime-runStart);win.style.display="flex";finale=3;b.vy=0;sfxWin();}
    }
-   // finale===3 (post-win): intentionally does nothing here anymore — the ball simply freezes in
-   // place instead of continuing to fall forever, unseen, behind the win screen.
    return;
  }
  if(death){
@@ -388,7 +212,7 @@ function up(dt){
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
-       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();lifeStart=performance.now();
+       death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;ptr=0;sfxRespawn();
      }
    }
    return;
@@ -435,16 +259,9 @@ function dr(){
  rest.style.opacity=death===2?".35":"0";
  const pal=PALETTE[theme];
  x.fillStyle=pal.bg;x.fillRect(0,0,W,H);
- let fy=floor-cam;
- if(fy>-10&&fy<H+10){x.strokeStyle=pal.fg;x.lineWidth=5;x.lineCap="round";x.beginPath();x.moveTo(0,fy);x.lineTo(W,fy);x.stroke()}
- // Thin ink trail: the path the ball has actually drawn through the level so far.
- if(trail.length>1){
-   x.save();x.globalAlpha=.4;x.strokeStyle=pal.fg;x.lineWidth=1;x.lineJoin="round";x.lineCap="round";
-   x.beginPath();x.moveTo(trail[0].x-camX,trail[0].y-cam);
-   for(let i=1;i<trail.length;i++)x.lineTo(trail[i].x-camX,trail[i].y-cam);
-   x.stroke();x.restore();
- }
  x.strokeStyle=pal.fg;x.lineWidth=5;x.lineCap="round";
+ let fy=floor-cam;
+ if(fy>-10&&fy<H+10){x.beginPath();x.moveTo(0,fy);x.lineTo(W,fy);x.stroke()}
  for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x-camX,y);x.lineTo(s.x-camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x-camX,y,s.r,0,Math.PI*2);x.stroke()}if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(WORLD_W/2-camX,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(WORLD_W/2-camX+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(WORLD_W/2-camX,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
  // Splatter particles.
  x.fillStyle=pal.fg;
@@ -493,6 +310,5 @@ function showScores(){let q=loadScores().filter(v=>v&&typeof v==="object"&&Numbe
 function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").textContent=formatScore(ms);showScores()}
 const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
 scoreForm.addEventListener("submit",e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}let q=loadScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l1-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent="SCORE SAVED.";scoreSubmit.disabled=true;playerName.disabled=true});
-document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagation();exportLifeOverview()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
 </script>

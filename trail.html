@@ -64,6 +64,9 @@ let trail=[];
 // Where every death happened this run — used to keep a spot right next to a crash from ever being
 // picked as a "happiest moment" just because it happens to have few crossing lines near it.
 let deathSpots=[];
+// How many trail points belonged to genuine mid-run climbing, before the finale flourish (flying up
+// into the ending circle) began. -1 means the run hasn't reached the finale yet (use the whole trail).
+let climbEnd=-1;
 // ===== theme (dark/light) =====
 let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
@@ -118,7 +121,7 @@ function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.w
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -184,7 +187,9 @@ function colLine(s){
  if(d>=m||!d)return;
  // Final large circle: entering its lower/inner area charges and launches the point upward.
  if(s.r>=76 && !finale && (floor-s.y)>6600){
-   finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
+   // Mark exactly where genuine climbing ends and the finale flourish begins, so the recap never
+   // mistakes "flying up and away at the very end" for a calm, successful stretch of real play.
+   finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;climbEnd=trail.length;return;
  }let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.r,"circle");let boost=Math.max(1,Math.min(1.28,1+(fallPeak-620)/1500));let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;fallPeak=0}
 let runStart=performance.now(),finishTime=0;let lastDt=1/60;
 let lifeStart=performance.now(),lifeDurations=[];
@@ -209,13 +214,18 @@ function splatNow(){
 // ===== end-of-run recap: the trail itself becomes a small artwork =====
 const WORLD_CROP=440;
 function findHotspots(){
- if(trail.length<20)return null;
+ // Only genuine mid-run climbing is eligible — not the finale flourish (flying up into the ending
+ // circle after winning). That flight is fast, sparse and always successful by construction, so on
+ // raw line count alone it would look like the cleanest "happiest" stretch of the whole run every
+ // single time, which isn't what it is: it's the victory lap, not a moment of skilled play.
+ const climbTrail=climbEnd>=0?trail.slice(0,climbEnd):trail;
+ if(climbTrail.length<20)return null;
  // A real "stuck here, tried again and again" spot isn't one pixel-sized dot — repeated jump
  // attempts near one stubborn platform fan out over a real patch as the ball bounces up and falls
  // back. So: bucket into a grid, then score each cell by itself plus its 8 neighbours (a cheap blur)
  // so that whole bounce-and-retry patch reads as one hotspot instead of being split across cells.
  const cell=90,cells={};
- for(const p of trail){
+ for(const p of climbTrail){
    const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
    let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0};cells[k]=c}
    c.n++;c.sx+=p.x;c.sy+=p.y;
@@ -239,13 +249,15 @@ function findHotspots(){
  // can look just as "clean" as a genuinely smooth run of successful jumps, simply because there
  // wasn't much time to lay down lines there. So any cell within reach of a real death this run is
  // disqualified outright, however few crossings it has: happy means strung-together successful
- // jumps, not "happened to die before drawing much."
+ // jumps, not "happened to die before drawing much." Same logic for the very start (spawn) — everyone
+ // eases in slowly there, so it's excluded too. Both exclusions are hard requirements, not just a
+ // preference — they're only ever relaxed together, as an absolute last resort, so a very short or
+ // very hard run still gets *some* happiest pick rather than none.
  const NEAR_DEATH=200;
  const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
- const startY=trail[0].y;
- const flowCandidates=list.filter(c=>c!==hardest&&(startY-c.sy/c.n)>120&&!nearDeath(c));
- const safeCandidates=list.filter(c=>c!==hardest&&!nearDeath(c));
- const pool=flowCandidates.length?flowCandidates:(safeCandidates.length?safeCandidates:list.filter(c=>c!==hardest));
+ const startY=climbTrail[0].y;
+ const safeCandidates=list.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>120);
+ const pool=safeCandidates.length?safeCandidates:list.filter(c=>c!==hardest&&!nearDeath(c));
  let happiest=pool.length?pool[0]:hardest;
  for(const c of pool)if(c.score<happiest.score)happiest=c;
  return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
