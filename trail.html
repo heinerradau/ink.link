@@ -1,5 +1,5 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1 — TRAIL</title>
-<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
 #invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
 #invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
 #invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
@@ -323,9 +323,13 @@ function exportLifeOverview(){
 function up(dt){
  lastDt=dt;upParticles(dt);
  // Only record the trail while the ball is actually moving under player control (or the finale
- // flourish) — not while it's lying still through the 5s death/recovery hold, which would otherwise
- // dump ~300 near-duplicate points on the respawn spot per death and swamp the real struggle signal.
- if(!death)trail.push({x:b.x,y:b.y});
+ // launch, finale===2) — not while it's lying still through the 5s death/recovery hold (which would
+ // otherwise dump ~300 near-duplicate points on the respawn spot per death), not during the brief
+ // pre-launch hold (finale===1), and not after the win (finale===3) — post-win the ball is left to
+ // fall under unbounded gravity in the background while the player reads the recap screen, and
+ // without this guard that silently added tens of thousands of world-units of runaway "fall" to the
+ // trail for every second the recap stayed open, swamping the real climb in the exported artwork.
+ if(!death&&finale!==1&&finale!==3)trail.push({x:b.x,y:b.y});
  if(finale){
    finaleT+=dt;
    if(finale===1){
@@ -333,12 +337,14 @@ function up(dt){
      b.x=WORLD_W/2;b.vx=0;b.vy=0;
      tcam=b.y-H*.52;cam+=(tcam-cam)*Math.min(1,dt*7);
      if(finaleT>1.35){finale=2;finaleT=0;b.vy=-1700;sfxLaunch();}
-   } else {
+   } else if(finale===2){
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
      if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";finale=3;b.vy=0;sfxWin();}
    }
+   // finale===3 (post-win): intentionally does nothing here anymore — the ball simply freezes in
+   // place instead of continuing to fall forever, unseen, behind the win screen.
    return;
  }
  if(death){
