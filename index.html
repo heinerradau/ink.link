@@ -48,12 +48,12 @@ let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
 const PALETTE={dark:{bg:"#050505",fg:"#fff"},light:{bg:"#f4f2ec",fg:"#16161a"}};
 function applyTheme(){document.documentElement.setAttribute("data-theme",theme);themeBtn.textContent=theme==="light"?"☀":"☾"}
-function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme()}
+function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme();if(ambOn&&actx&&ambBus){const t=actx.currentTime;ambBus.gain.cancelScheduledValues(t);ambBus.gain.setValueAtTime(ambBus.gain.value,t);ambBus.gain.linearRampToValueAtTime(0,t+.09);ambBus.gain.linearRampToValueAtTime(1,t+.22);clearTimeout(ambTimer);ambTimer=setTimeout(ambNote,110)}}
 applyTheme();themeBtn.addEventListener("click",e=>{e.stopPropagation();toggleTheme()});
 // ===== retro chiptune audio: eerie GB-style pulse/triangle synth in dark mode, brighter major-key synth in light mode, no samples/files =====
-let actx=null,mstG=null,sndOn=true,ambOn=false,ambTimer=null;
+let actx=null,mstG=null,ambBus=null,sndOn=true,ambOn=false,ambTimer=null;
 try{sndOn=localStorage.getItem("il_snd")!=="0"}catch(_){}
-function ensureAudio(){if(actx)return;try{actx=new(window.AudioContext||window.webkitAudioContext)();mstG=actx.createGain();mstG.gain.value=sndOn?.5:0;mstG.connect(actx.destination);startAmbient()}catch(_){}}
+function ensureAudio(){if(actx)return;try{actx=new(window.AudioContext||window.webkitAudioContext)();mstG=actx.createGain();mstG.gain.value=sndOn?.5:0;mstG.connect(actx.destination);ambBus=actx.createGain();ambBus.gain.value=1;ambBus.connect(mstG);startAmbient()}catch(_){}}
 function wakeAudio(){if(!actx)ensureAudio();else if(actx.state==="suspended")actx.resume()}
 addEventListener("keydown",wakeAudio,{passive:true});addEventListener("pointerdown",wakeAudio,{passive:true});addEventListener("touchstart",wakeAudio,{passive:true});
 function tone(f,dur,type,vol,slide){if(!actx||!sndOn)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type||"square";o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(mstG);o.start(t);o.stop(t+dur+.02)}
@@ -87,7 +87,7 @@ function ambNote(){
  o.type="triangle";o.frequency.value=f;lfo.frequency.value=light?6:4.4;lfoG.gain.value=light?1.2:2.2;lfo.connect(lfoG);lfoG.connect(o.frequency);
  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+attack);g.gain.exponentialRampToValueAtTime(.001,t+dur);
  dl.delayTime.value=light?.18:.44;fb.gain.value=light?.15:.36;dl.connect(fb);fb.connect(dl);
- o.connect(g);g.connect(mstG);g.connect(dl);dl.connect(mstG);lfo.start(t);lfo.stop(t+dur+.1);o.start(t);o.stop(t+dur+.1);
+ o.connect(g);g.connect(ambBus);g.connect(dl);dl.connect(ambBus);lfo.start(t);lfo.stop(t+dur+.1);o.start(t);o.stop(t+dur+.1);
  ambTimer=setTimeout(ambNote,light?450+Math.random()*350:1700+Math.random()*1500);
 }
 function startAmbient(){if(ambOn)return;ambOn=true;ambNote()}
