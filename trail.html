@@ -23,7 +23,10 @@
 .recapCol{display:flex;flex-direction:column;align-items:center;gap:7px}
 #recap canvas{width:200px;height:200px;border-radius:10px;border:1px solid rgba(var(--fg-rgb),.16);display:block}
 .recapLabel{font:9px/1 monospace;letter-spacing:.15em;opacity:.48;text-transform:uppercase;text-align:center}
-#avgLife{font:10px/1 monospace;letter-spacing:.13em;opacity:.5;margin:0 0 16px}
+#avgLife{font:10px/1 monospace;letter-spacing:.13em;opacity:.5;margin:0 0 10px}
+#exportBtn{display:none;margin:0 0 18px;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:11px 19px;font:10px monospace;letter-spacing:.12em;cursor:pointer;transition:.2s}
+#exportBtn:hover{background:var(--fg);color:var(--bg)}
+#exportBtn:active{opacity:.7}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
 <canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
@@ -33,6 +36,7 @@
   <div class="recapCol"><canvas id="cropHappy" width="200" height="200"></canvas><div class="recapLabel">Your happiest moments</div></div>
 </div>
 <div id="avgLife"></div>
+<button id="exportBtn" type="button">EXPORT LIFE OVERVIEW ↓</button>
 <div id="topScores"></div>
 <form id="scoreForm">
   <input id="playerName" type="text" maxlength="24" autocomplete="nickname" placeholder="YOUR NAME" required aria-label="Player name">
@@ -268,6 +272,53 @@ function renderRecap(){
    recapEl.style.display="flex";
  } else recapEl.style.display="none";
  document.querySelector("#avgLife").textContent="YOUR AVERAGE LIFE: "+(avgLifeMs()/1000).toFixed(1)+"s";
+ document.querySelector("#exportBtn").style.display=trail.length>1?"inline-block":"none";
+}
+// Renders the WHOLE run's trail (every line, every respawn, start to finish) into one image and
+// offers it as a PNG download — the two small crops above are a taste, this is the full drawing.
+function exportLifeOverview(){
+ if(trail.length<2)return;
+ let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+ for(const p of trail){if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y}
+ const pad=90;minX-=pad;maxX+=pad;minY-=pad;maxY+=pad;
+ const wW=Math.max(1,maxX-minX),wH=Math.max(1,maxY-minY);
+ const MAXDIM=1600,MINDIM=520;
+ let scale=Math.min(MAXDIM/wW,MAXDIM/wH);scale=Math.min(scale,3);
+ const drawW=wW*scale,drawH=wH*scale;
+ const cw=Math.max(MINDIM,Math.round(drawW)),ch=Math.max(MINDIM,Math.round(drawH));
+ const offX=(cw-drawW)/2,offY=(ch-drawH)/2;
+ const cnv=document.createElement("canvas");cnv.width=cw;cnv.height=ch;
+ const ctx2=cnv.getContext("2d"),pal=PALETTE[theme];
+ ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,cw,ch);
+ ctx2.save();ctx2.translate(offX,offY);ctx2.scale(scale,scale);ctx2.translate(-minX,-minY);
+ ctx2.strokeStyle=pal.fg;ctx2.lineWidth=5/scale;ctx2.lineCap="round";ctx2.globalAlpha=1;
+ for(const s of sh){
+   if(s.t==="l"){
+     const ex=s.x+Math.cos(s.a)*s.len,ey=s.y+Math.sin(s.a)*s.len;
+     if(Math.max(s.x,ex)<minX-40||Math.min(s.x,ex)>maxX+40||Math.max(s.y,ey)<minY-40||Math.min(s.y,ey)>maxY+40)continue;
+     ctx2.beginPath();ctx2.moveTo(s.x,s.y);ctx2.lineTo(ex,ey);ctx2.stroke();
+   } else {
+     if(s.x+s.r<minX-40||s.x-s.r>maxX+40||s.y+s.r<minY-40||s.y-s.r>maxY+40)continue;
+     ctx2.beginPath();ctx2.arc(s.x,s.y,s.r,0,Math.PI*2);ctx2.stroke();
+   }
+ }
+ // The trail itself, start to finish — but a big jump between consecutive points means a
+ // death/respawn happened there (recording is paused through the hold), so break the line rather
+ // than drawing a fake connector stroke straight across the canvas.
+ ctx2.globalAlpha=.6;ctx2.lineWidth=1.6/scale;ctx2.lineJoin="round";ctx2.lineCap="round";
+ ctx2.beginPath();let prev=null;
+ for(const p of trail){
+   if(!prev||Math.hypot(p.x-prev.x,p.y-prev.y)>140)ctx2.moveTo(p.x,p.y);else ctx2.lineTo(p.x,p.y);
+   prev=p;
+ }
+ ctx2.stroke();ctx2.restore();
+ cnv.toBlob(blob=>{
+   if(!blob)return;
+   const url=URL.createObjectURL(blob),a=document.createElement("a");
+   a.href=url;a.download="ink-link-life-overview.png";
+   document.body.appendChild(a);a.click();document.body.removeChild(a);
+   setTimeout(()=>URL.revokeObjectURL(url),1500);
+ },"image/png");
 }
 function up(dt){
  lastDt=dt;upParticles(dt);
@@ -408,5 +459,6 @@ function showScores(){let q=loadScores().filter(v=>v&&typeof v==="object"&&Numbe
 function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").textContent=formatScore(ms);showScores()}
 const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
 scoreForm.addEventListener("submit",e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}let q=loadScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l1-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent="SCORE SAVED.";scoreSubmit.disabled=true;playerName.disabled=true});
+document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagation();exportLifeOverview()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
 </script>
