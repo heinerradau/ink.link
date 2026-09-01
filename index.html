@@ -190,7 +190,7 @@ function up(dt){
  }
  maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
  let sy=b.y-cam;if(sy<H*.36)tcam=b.y-H*.36;else if(sy>H*.7)tcam=Math.min(0,b.y-H*.7);cam+=(tcam-cam)*.07;
- let sx=b.x-camX;if(sx<W*.25)tcamX=b.x-W*.25;else if(sx>W*.75)tcamX=b.x-W*.75;camX+=(tcamX-camX)*.08;
+ tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.25;camX+=(tcamX-camX)*.08;
  if(false)win.style.display="flex"
 }
 function dr(){
