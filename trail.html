@@ -61,6 +61,9 @@ let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[]
 // Fork: the ball leaves a thin ink trail behind it, tracing the path it drew through the level.
 // Every point of the whole run is kept — across respawns too — and only cleared on a full rebuild (resize).
 let trail=[];
+// Where every death happened this run — used to keep a spot right next to a crash from ever being
+// picked as a "happiest moment" just because it happens to have few crossing lines near it.
+let deathSpots=[];
 // ===== theme (dark/light) =====
 let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
@@ -115,7 +118,7 @@ function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.w
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -197,13 +200,14 @@ function beginDeath(){
 function splatNow(){
  sfxSplat();
  if(lifeStart!=null){lifeDurations.push(performance.now()-lifeStart);lifeStart=null}
+ deathSpots.push({x:b.x,y:b.y});
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;ptr=0;
  burst();cam+=(0-cam)*.55;
 }
 // ===== end-of-run recap: the trail itself becomes a small artwork =====
-const WORLD_CROP=260;
+const WORLD_CROP=440;
 function findHotspots(){
  if(trail.length<20)return null;
  // A real "stuck here, tried again and again" spot isn't one pixel-sized dot — repeated jump
@@ -230,9 +234,18 @@ function findHotspots(){
  // count), so a low-traffic edge cell that's still sitting right next to the struggle patch stays
  // disqualified by its busy neighbours, instead of accidentally winning on a technicality. Also
  // excludes the very start, since everyone eases in slowly there.
+ //
+ // Crucially, a low line count is NOT by itself a happy moment — a spot right before/after a crash
+ // can look just as "clean" as a genuinely smooth run of successful jumps, simply because there
+ // wasn't much time to lay down lines there. So any cell within reach of a real death this run is
+ // disqualified outright, however few crossings it has: happy means strung-together successful
+ // jumps, not "happened to die before drawing much."
+ const NEAR_DEATH=200;
+ const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
  const startY=trail[0].y;
- const flowCandidates=list.filter(c=>c!==hardest&&(startY-c.sy/c.n)>120);
- const pool=flowCandidates.length?flowCandidates:list.filter(c=>c!==hardest);
+ const flowCandidates=list.filter(c=>c!==hardest&&(startY-c.sy/c.n)>120&&!nearDeath(c));
+ const safeCandidates=list.filter(c=>c!==hardest&&!nearDeath(c));
+ const pool=flowCandidates.length?flowCandidates:(safeCandidates.length?safeCandidates:list.filter(c=>c!==hardest));
  let happiest=pool.length?pool[0]:hardest;
  for(const c of pool)if(c.score<happiest.score)happiest=c;
  return{hardest:{x:hardest.sx/hardest.n,y:hardest.sy/hardest.n},happiest:{x:happiest.sx/happiest.n,y:happiest.sy/happiest.n}};
@@ -243,7 +256,10 @@ function drawCrop(canvas,center){
  ctx2.setTransform(1,0,0,1,0,0);ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,size,size);
  const scale=size/WORLD_CROP,half=WORLD_CROP/2,ox=center.x-half,oy=center.y-half;
  ctx2.save();ctx2.scale(scale,scale);
- ctx2.strokeStyle=pal.fg;ctx2.lineWidth=4.5;ctx2.lineCap="round";
+ // Line widths are specified in device pixels here, not world units — WORLD_CROP controls how far
+ // zoomed out the crop is, and without dividing by scale, a wider (more zoomed-out) crop would draw
+ // thinner, fainter strokes purely as a side effect of showing more of the level.
+ ctx2.strokeStyle=pal.fg;ctx2.lineWidth=3.5/scale;ctx2.lineCap="round";
  for(const s of sh){
    if(s.t==="l"){
      const ex=s.x+Math.cos(s.a)*s.len,ey=s.y+Math.sin(s.a)*s.len;
@@ -254,7 +270,7 @@ function drawCrop(canvas,center){
      ctx2.beginPath();ctx2.arc(s.x-ox,s.y-oy,s.r,0,Math.PI*2);ctx2.stroke();
    }
  }
- ctx2.globalAlpha=.55;ctx2.lineWidth=1.4;ctx2.lineJoin="round";
+ ctx2.globalAlpha=.55;ctx2.lineWidth=1.3/scale;ctx2.lineJoin="round";
  let started=false;ctx2.beginPath();
  for(const p of trail){
    const inX=p.x>=ox-20&&p.x<=ox+WORLD_CROP+20,inY=p.y>=oy-20&&p.y<=oy+WORLD_CROP+20;
