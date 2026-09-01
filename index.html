@@ -186,30 +186,40 @@ function up(dt){
    }
    return;
  }
- b.vx+=((K.r-K.l)*1650)*dt;b.vx*=Math.pow(.991,dt*60);b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
- let old=b.y;b.vy+=G*dt;if(b.vy>0)fallPeak=Math.max(fallPeak,b.vy);b.x+=b.vx*dt;b.y+=b.vy*dt;
- if(b.x<playL+b.r){b.x=playL+b.r;b.vx=Math.abs(b.vx)*.72}if(b.x>playR-b.r){b.x=playR-b.r;b.vx=-Math.abs(b.vx)*.72}
- for(let s of sh)s.t=="l"?colLine(s):colCircle(s);
- if(b.y+b.r>=floor){
-   if(recoveryHop>0){
-     b.y=floor-b.r-1;
-     let stage=4-recoveryHop;
-     b.vy=-B*(.48+stage*.22);
-     b.vx*=.88; recoveryHop--;
-   } else if(maxh>=DEATH_ARM_HEIGHT){
-     // Once the run has climbed past roughly the first two floors,
-     // hitting the floor causes an immediate splat on the first contact.
-     splatNow();return;
-   } else {
-     // Near the start, the floor is safe and behaves like a softer trampoline.
-     b.y=floor-b.r-1;
-     b.vy=-B*.78;
-     b.vx*=.86;
-     fallPeak=0;
-     sfxLand();
+ // Sub-step the simulation when moving fast so the ball can never tunnel through a platform:
+ // each sub-step advances at most `maxStep` world units before collisions are re-checked.
+ const maxStep=7;
+ let steps=Math.min(48,Math.max(1,Math.ceil(Math.max(Math.abs(b.vx),Math.abs(b.vy))*dt/maxStep)));
+ let sdt=dt/steps;
+ lastDt=sdt;
+ for(let i=0;i<steps;i++){
+   b.vx+=((K.r-K.l)*1650)*sdt;b.vx*=Math.pow(.991,sdt*60);b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
+   b.vy+=G*sdt;if(b.vy>0)fallPeak=Math.max(fallPeak,b.vy);b.x+=b.vx*sdt;b.y+=b.vy*sdt;
+   if(b.x<playL+b.r){b.x=playL+b.r;b.vx=Math.abs(b.vx)*.72}if(b.x>playR-b.r){b.x=playR-b.r;b.vx=-Math.abs(b.vx)*.72}
+   for(let s of sh)s.t=="l"?colLine(s):colCircle(s);
+   maxh=Math.max(maxh,floor-b.y);
+   if(b.y+b.r>=floor){
+     if(recoveryHop>0){
+       b.y=floor-b.r-1;
+       let stage=4-recoveryHop;
+       b.vy=-B*(.48+stage*.22);
+       b.vx*=.88; recoveryHop--;
+     } else if(maxh>=DEATH_ARM_HEIGHT){
+       // Once the run has climbed past roughly the first two floors,
+       // hitting the floor causes an immediate splat on the first contact.
+       splatNow();return;
+     } else {
+       // Near the start, the floor is safe and behaves like a softer trampoline.
+       b.y=floor-b.r-1;
+       b.vy=-B*.78;
+       b.vx*=.86;
+       fallPeak=0;
+       sfxLand();
+     }
+     break;
    }
  }
- maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
+ he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
  let sy=b.y-cam;if(sy<H*.36)tcam=b.y-H*.36;else if(sy>H*.7)tcam=Math.min(0,b.y-H*.7);cam+=(tcam-cam)*.07;
  tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.25;camX+=(tcamX-camX)*.08;
  if(false)win.style.display="flex"
