@@ -1,0 +1,364 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1 — DUO</title>
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333;--p2:#ff5a3c}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s}
+#stage{display:flex;width:100vw;height:100vh}
+.half{position:relative;width:50vw;height:100vh;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+#divider{position:fixed;left:50%;top:0;bottom:0;width:1px;background:rgba(var(--fg-rgb),.22);z-index:4;transform:translateX(-.5px)}
+.hud{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:12px;z-index:5;font-family:monospace;pointer-events:none}
+.hud .tag,.hud .timer,.hud .h{font-size:10px;line-height:1;letter-spacing:.10em;opacity:.6;white-space:nowrap}
+.hud .tag{padding:2px 7px;border-radius:99px;border:1px solid currentColor;opacity:.85}
+.p1 .hud .tag{color:var(--fg)}
+.p2 .hud .tag{color:var(--p2)}
+.hud .timer:before{content:"TIME ";opacity:.7}
+.hud .h:after{content:" HEIGHT";opacity:.7}
+.keyHint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font:9px monospace;letter-spacing:.14em;opacity:.32;z-index:5;pointer-events:none;text-transform:uppercase}
+#topBar{position:fixed;top:12px;right:16px;display:flex;gap:12px;z-index:6}
+#sndBtn,#themeBtn{cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}
+#sndBtn:hover,#themeBtn:hover{opacity:.85}
+#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em;z-index:20}
+#invite{max-width:460px;margin:auto;text-align:center;opacity:0;transform:translateY(18px);animation:inviteIn 1s ease .15s forwards}
+#invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:22px 0 8px}
+#invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 22px;max-width:360px}
+#winnerTag{font:600 15px/1 monospace;letter-spacing:.18em;text-transform:uppercase;opacity:.55}
+#results{display:flex;gap:22px;justify-content:center;margin:20px 0 26px}
+.result{min-width:150px;padding:16px 14px;border:1px solid rgba(var(--fg-rgb),.18);border-radius:10px}
+.result.win{border-color:currentColor}
+.result .who{font:10px/1 monospace;letter-spacing:.18em;opacity:.55;text-transform:uppercase;margin-bottom:10px}
+.result .stat{font:600 22px/1 monospace}
+.result .sub2{font:9px/1 monospace;opacity:.5;margin-top:6px;letter-spacing:.08em}
+#join{display:inline-block;padding:13px 20px;border:1px solid var(--fg);border-radius:999px;color:var(--fg);text-decoration:none;font:12px/1 monospace;letter-spacing:.12em;transition:.2s}
+#join:hover{background:var(--fg);color:var(--bg)}
+.repoHint{margin-top:9px;font:9px monospace;letter-spacing:.08em;opacity:.28}
+.hint{margin-top:14px;font:10px/1.4 monospace;opacity:.38}
+@keyframes inviteIn{to{opacity:1;transform:translateY(0)}}
+.inkLogo{width:120px;height:76px;margin:0 auto 16px;position:relative}
+.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:4px;background:var(--fg);border-radius:99px;transform-origin:left center}
+.inkLogo:before{width:66px;left:10px;top:51px;transform:rotate(-31deg)}
+.inkLogo:after{width:58px;left:56px;top:16px;transform:rotate(35deg)}
+.inkLogo i:nth-child(1){width:47px;left:16px;top:23px;transform:rotate(24deg)}
+.inkLogo i:nth-child(2){width:39px;left:59px;top:52px;transform:rotate(-20deg)}
+.inkLogo i:nth-child(3){width:27px;left:46px;top:36px;transform:rotate(78deg);opacity:.65}
+.inkLogo b{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--fg);left:54px;top:31px;box-shadow:-41px -14px 0 -4px var(--fg),44px 19px 0 -4px var(--fg)}</style>
+<div id="stage">
+  <div class="half p1"><canvas id="c1"></canvas><div class="hud"><span class="tag">P1</span><span class="timer" id="t1">00:00.0</span><span class="h" id="h1">0 m</span></div><div class="keyHint">A / D</div></div>
+  <div class="half p2"><canvas id="c2"></canvas><div class="hud"><span class="tag">P2</span><span class="timer" id="t2">00:00.0</span><span class="h" id="h2">0 m</span></div><div class="keyHint">◀ / ▶</div></div>
+</div>
+<div id="divider"></div>
+<div id="topBar"><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div>
+<div id="w"><div id="invite">
+<div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
+<div id="winnerTag"></div>
+<h1>RACE OVER.</h1>
+<div id="results"></div>
+<a id="join" href="https://github.com/heinerradau/ink.link" target="_blank" rel="noopener noreferrer">SEE MORE →</a>
+<div class="repoHint">INK.LINK ON GITHUB</div>
+<div class="hint">reload to race again</div>
+</div></div>
+<script>
+// ===== DUO: local split-screen 1v1 on the same shared course. Left half = Player 1 (A/D), right
+// half = Player 2 (Arrow Left/Right) — deliberately the same two key-pairs that single-player used to
+// bind to ONE ball redundantly; here they're cleanly split so both players get their own, completely
+// independent K.l/K.r flags and the identical accel+friction physics (same fairness fix as mobile).
+// Both players see their OWN line/ball in the normal theme color, and the OTHER player's line/ball in
+// a fixed accent color, inside their own half — same shared level, same camera-follows-you framing.
+const themeBtn=document.querySelector("#themeBtn"),sndBtn=document.querySelector("#sndBtn"),win=document.querySelector("#w");
+let W,H,dpr,floor;
+const L=6900,WORLD_W=900,G=1480,B=790,MAX=455,DEATH_ARM_HEIGHT=240;
+let playL=0,playR=0,sh=[];
+let raceOver=false,last=performance.now();
+
+// ===== theme (dark/light) =====
+let theme="dark";
+try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
+const PALETTE={dark:{bg:"#050505",fg:"#fff"},light:{bg:"#f4f2ec",fg:"#16161a"}};
+const P2_COLOR="#ff5a3c";
+function applyTheme(){document.documentElement.setAttribute("data-theme",theme);themeBtn.textContent=theme==="light"?"☀":"☾"}
+function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme()}
+applyTheme();themeBtn.addEventListener("click",e=>{e.stopPropagation();toggleTheme()});
+
+// ===== shared retro chiptune audio (both players trigger into the same bus — half the fun of local
+// co-op is hearing both of you bounce at once) =====
+let actx=null,mstG=null,sndOn=true;
+try{sndOn=localStorage.getItem("il_snd")!=="0"}catch(_){}
+function ensureAudio(){if(actx)return;try{actx=new(window.AudioContext||window.webkitAudioContext)();mstG=actx.createGain();mstG.gain.value=sndOn?.5:0;mstG.connect(actx.destination)}catch(_){}}
+function wakeAudio(){if(!actx)ensureAudio();else if(actx.state==="suspended")actx.resume()}
+addEventListener("keydown",wakeAudio,{passive:true});addEventListener("pointerdown",wakeAudio,{passive:true});
+function tone(f,dur,type,vol,slide){if(!actx||!sndOn)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type||"square";o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(mstG);o.start(t);o.stop(t+dur+.02)}
+const LINE_NOTES=[196,233.08,261.63,293.66,349.23,392,440,523.25];
+function sfxBounce(strength,len,kind){
+ const s=Math.max(0,Math.min(1,strength));
+ if(kind==="circle"){const rr=len||45,base=70+Math.max(0,Math.min(1,1-(rr-30)/50))*70;tone(base+35,.17+s*.05,"sine",.32+s*.22,base*.5);return}
+ const ln=len||150,t=Math.max(0,Math.min(1,1-(ln-75)/240)),idx=Math.round(t*(LINE_NOTES.length-1)),f=LINE_NOTES[idx];
+ tone(f,.07+s*.03,"square",.24+s*.22,f*1.45);
+}
+function sfxLand(){tone(140,.09,"triangle",.2,90)}
+function sfxSplat(){if(!actx||!sndOn)return;const t=actx.currentTime,n=Math.floor(actx.sampleRate*.22),buf=actx.createBuffer(1,n,actx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const src=actx.createBufferSource();src.buffer=buf;const lp=actx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=850;const g=actx.createGain();g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);src.connect(lp);lp.connect(g);g.connect(mstG);src.start(t);tone(85,.28,"triangle",.24,45)}
+function sfxRespawn(){tone(330,.06,"square",.2,520);setTimeout(()=>tone(520,.07,"square",.18,760),70)}
+function sfxLaunch(){tone(120,.5,"sawtooth",.16,900)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.2,"triangle",.24),i*95))}
+function toggleSound(){sndOn=!sndOn;try{localStorage.setItem("il_snd",sndOn?"1":"0")}catch(_){}if(mstG)mstG.gain.value=sndOn?.5:0;if(sndOn)wakeAudio();sndBtn.textContent=sndOn?"♪":"✕";sndBtn.style.opacity=sndOn?.5:.3}
+sndBtn.textContent=sndOn?"♪":"✕";sndBtn.addEventListener("click",e=>{e.stopPropagation();toggleSound()});
+
+// ===== shared level: built once, identical for both players — a fair race needs the same course =====
+function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
+function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
+function buildLevel(){
+ sh=[];
+ [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
+ cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
+ ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
+ cr(30,3646,46);ln(-155,3725,310,0);ln(-175,3808,82,.42);ln(55,3969,82,-.42);cr(-45,4131,32);ln(-150,4205,300,0);ln(55,4288,78,.32);ln(-155,4445,78,-.34);cr(55,4607,35);ln(-155,4680,310,0);ln(-125,4760,90,.20);ln(25,4913,110,-.12);ln(-80,5066,160,0);cr(0,5195,72);ln(-105,5325,210,0);
+ ln(35,5465,105,.24);ln(-165,5605,95,-.30);cr(65,5765,38);
+ ln(-150,5845,300,0);ln(-170,5940,82,.40);ln(55,6095,84,-.42);
+ cr(-55,6255,44);ln(-150,6335,300,0);ln(45,6425,90,.34);
+ ln(-165,6575,92,-.36);cr(0,6760,78);ln(-110,6890,220,0);
+}
+
+// ===== per-player state — everything that used to be a single set of module-level globals in the
+// single-player game is now one of these, so both players get their own fully independent simulation
+// running the exact same code path (same physics, same collision code, same fairness). =====
+function mkPlayer(id,keyL,keyR){
+ return{
+  id,keyL,keyR,K:{l:0,r:0},
+  b:{x:WORLD_W/2,y:0,vx:0,vy:80,r:11},
+  cam:0,tcam:0,camX:0,tcamX:0,maxh:0,
+  death:0,deathT:0,respawnT:0,particles:[],impactX:0,respawnX:0,recoveryHop:0,
+  finale:0,finaleT:0,fallPeak:0,lastDt:1/60,
+  trail:[],finishTime:0,runStart:performance.now(),won:false,dnfHeight:0
+ };
+}
+let p1=mkPlayer(1,"a","d"),p2=mkPlayer(2,"ArrowLeft","ArrowRight");
+const players=[p1,p2];
+
+function resetPlayer(p){
+ p.cam=p.tcam=p.maxh=0;p.death=p.deathT=p.respawnT=p.finale=p.finaleT=0;p.particles=[];p.trail=[];
+ p.b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};p.camX=p.tcamX=p.b.x-W/2;p.finishTime=0;p.runStart=performance.now();p.won=false;p.dnfHeight=0;
+}
+
+function rs(){
+ dpr=Math.min(devicePixelRatio||1,2);
+ W=innerWidth/2;H=innerHeight;
+ for(const c of [c1,c2]){c.width=W*dpr;c.height=H*dpr;ctx(c).setTransform(dpr,0,0,dpr,0,0)}
+ floor=H-50;playL=-2000;playR=WORLD_W+2000;
+ buildLevel();
+ resetPlayer(p1);resetPlayer(p2);
+ raceOver=false;win.style.display="none";
+}
+const c1=document.querySelector("#c1"),c2=document.querySelector("#c2");
+const ctxCache=new WeakMap();
+function ctx(c){if(!ctxCache.has(c))ctxCache.set(c,c.getContext("2d"));return ctxCache.get(c)}
+
+// ===== controls: A/D drive p1.K, Arrow Left/Right drive p2.K — fully independent, no cross-talk. =====
+addEventListener("keydown",e=>{
+ if(e.key===p1.keyL)p1.K.l=1;else if(e.key===p1.keyR)p1.K.r=1;
+ else if(e.key===p2.keyL)p2.K.l=1;else if(e.key===p2.keyR)p2.K.r=1;
+});
+addEventListener("keyup",e=>{
+ if(e.key===p1.keyL)p1.K.l=0;else if(e.key===p1.keyR)p1.K.r=0;
+ else if(e.key===p2.keyL)p2.K.l=0;else if(e.key===p2.keyR)p2.K.r=0;
+});
+addEventListener("blur",()=>{p1.K.l=p1.K.r=p2.K.l=p2.K.r=0});
+
+function colLine(p,s){
+ let co=Math.cos(s.a),si=Math.sin(s.a);
+ let x1=s.x,y1=s.y,x2=x1+co*s.len,y2=y1+si*s.len;
+ const b=p.b;
+ if(b.vy<=0)return;
+ const barHalf=2.5,hitR=b.r+barHalf;
+ const sx=x2-x1,sy=y2-y1,seg2=sx*sx+sy*sy||1;
+ let t=((b.x-x1)*sx+(b.y-y1)*sy)/seg2;t=Math.max(0,Math.min(1,t));
+ let qx=x1+t*sx,qy=y1+t*sy;
+ let dx=b.x-qx,dy=b.y-qy,d=Math.hypot(dx,dy);
+ let prevX=b.x-b.vx*p.lastDt,prevY=b.y-b.vy*p.lastDt;
+ let pt=((prevX-x1)*sx+(prevY-y1)*sy)/seg2;pt=Math.max(0,Math.min(1,pt));
+ let pqx=x1+pt*sx,pqy=y1+pt*sy;
+ let pdx=prevX-pqx,pdy=prevY-pqy,pd=Math.hypot(pdx,pdy);
+ if(d>hitR&&pd>hitR)return;
+ let nx,ny;
+ if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
+ let upx=si,upy=-co;
+ if(nx*upx+ny*upy<-.05)return;
+ b.x=qx+nx*(hitR+.35);b.y=qy+ny*(hitR+.35);
+ let dot=b.vx*nx+b.vy*ny;
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,"line")}
+ let fallBoost=Math.max(1,Math.min(1.34,1+(p.fallPeak-620)/1350));
+ let target=-B*.94*fallBoost;
+ if(b.vy>target)b.vy=target;
+ b.vx+=Math.sin(s.a)*B*.28;b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
+ p.fallPeak=0;
+}
+function colCircle(p,s){
+ const b=p.b;
+ let dx=b.x-s.x,dy=b.y-s.y,d=Math.hypot(dx,dy),m=s.r+b.r;
+ if(d>=m||!d)return;
+ if(s.r>=76&&!p.finale&&(floor-s.y)>6600){
+  p.finale=1;p.finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;return;
+ }
+ let nx=dx/d,ny=dy/d,dot=b.vx*nx+b.vy*ny;if(dot>=0)return;
+ b.x=s.x+nx*m;b.y=s.y+ny*m;b.vx-=2*dot*nx;b.vy-=2*dot*ny;
+ sfxBounce(-dot/1100,s.r,"circle");
+ let boost=Math.max(1,Math.min(1.28,1+(p.fallPeak-620)/1500));
+ let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(b.vx,b.vy)*1.03)),z=Math.hypot(b.vx,b.vy)||1;
+ b.vx=b.vx/z*sp;b.vy=b.vy/z*sp;p.fallPeak=0;
+}
+function burst(p){
+ p.particles=[];
+ for(let i=0;i<34;i++){let a=Math.PI+(Math.random()-.5)*Math.PI,sp=90+Math.random()*280;p.particles.push({x:p.impactX,y:floor-3,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:1.2+Math.random()*2.8,life:.65+Math.random()*.7})}
+}
+function upParticles(p,dt){for(let pt of p.particles){pt.vy+=G*.48*dt;pt.x+=pt.vx*dt;pt.y+=pt.vy*dt;pt.life-=dt}p.particles=p.particles.filter(pt=>pt.life>0)}
+function splatNow(p){
+ sfxSplat();
+ p.death=2;p.deathT=0;p.respawnT=0;
+ p.impactX=p.b.x;p.respawnX=WORLD_W/2;
+ p.b.y=floor-p.b.r;p.b.vx=0;p.b.vy=0;p.fallPeak=0;p.K.l=p.K.r=0;
+ burst(p);p.cam+=(0-p.cam)*.55;
+}
+function declareWin(p){
+ if(raceOver)return;
+ raceOver=true;
+ p.won=true;p.finishTime=performance.now();
+ const other=p===p1?p2:p1;
+ other.dnfHeight=Math.floor(other.maxh/10);
+ sfxWin();
+ showResults(p,other);
+}
+function showResults(winner,loser){
+ document.querySelector("#winnerTag").textContent="PLAYER "+winner.id+" WINS";
+ document.querySelector("#winnerTag").style.color=winner.id===1?"var(--fg)":P2_COLOR;
+ const secs=((winner.finishTime-winner.runStart)/1000);
+ const mm=Math.floor(secs/60),ss=(secs-mm*60).toFixed(1).padStart(4,"0");
+ const time=String(mm).padStart(2,"0")+":"+ss;
+ document.querySelector("#results").innerHTML=
+  '<div class="result win" style="color:'+(winner.id===1?"var(--fg)":P2_COLOR)+'"><div class="who">Player '+winner.id+'</div><div class="stat">'+time+'</div><div class="sub2">FINISHED</div></div>'+
+  '<div class="result" style="color:'+(loser.id===1?"var(--fg)":P2_COLOR)+'"><div class="who">Player '+loser.id+'</div><div class="stat">'+loser.dnfHeight+' m</div><div class="sub2">DID NOT FINISH</div></div>';
+ win.style.display="flex";
+}
+
+function up(p,dt){
+ p.lastDt=dt;upParticles(p,dt);
+ if(p.finale){
+  p.finaleT+=dt;
+  if(p.finale===1){
+   p.b.x=WORLD_W/2;p.b.vx=0;p.b.vy=0;
+   p.tcam=p.b.y-H*.52;p.cam+=(p.tcam-p.cam)*Math.min(1,dt*7);
+   if(p.finaleT>1.35){p.finale=2;p.finaleT=0;p.b.vy=-1700;sfxLaunch()}
+  } else if(p.finale===2){
+   p.b.vy+=G*.36*dt;p.b.y+=p.b.vy*dt;
+   p.tcam=p.b.y-H*.58;p.cam+=(p.tcam-p.cam)*Math.min(1,dt*9);
+   p.maxh=Math.max(p.maxh,floor-p.b.y);
+   if(p.finaleT>4.8&&!p.finishTime){p.finale=3;p.b.vy=0;declareWin(p)}
+  }
+  return;
+ }
+ if(p.death){
+  p.deathT+=dt;
+  if(p.death===1){
+   p.b.vy+=G*dt;p.b.y+=p.b.vy*dt;
+   p.tcam=Math.min(0,p.b.y-H*.68);p.cam+=(p.tcam-p.cam)*Math.min(1,dt*11);
+   if(p.b.y+p.b.r>=floor){p.b.y=floor-p.b.r;p.b.vy=0;p.impactX=p.b.x;p.respawnX=WORLD_W/2;burst(p);p.death=2;p.deathT=0;p.cam+=(0-p.cam)*.55;sfxSplat()}
+  } else {
+   p.tcam=0;p.cam+=(0-p.cam)*Math.min(1,dt*12);
+   p.respawnT+=dt;
+   if(p.respawnT>=5){p.death=0;p.respawnT=0;p.recoveryHop=3;p.b.x=WORLD_W/2;p.b.y=floor-p.b.r-2;p.b.vx=0;p.b.vy=-B*.48;p.K.l=p.K.r=0;sfxRespawn()}
+  }
+  return;
+ }
+ const maxStep=7;
+ let steps=Math.min(48,Math.max(1,Math.ceil(Math.max(Math.abs(p.b.vx),Math.abs(p.b.vy))*dt/maxStep)));
+ let sdt=dt/steps;p.lastDt=sdt;
+ for(let i=0;i<steps;i++){
+  const b=p.b;
+  b.vx+=((p.K.r-p.K.l)*1650)*sdt;b.vx*=Math.pow(.991,sdt*60);b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
+  b.vy+=G*sdt;if(b.vy>0)p.fallPeak=Math.max(p.fallPeak,b.vy);b.x+=b.vx*sdt;b.y+=b.vy*sdt;
+  if(b.x<playL+b.r){b.x=playL+b.r;b.vx=Math.abs(b.vx)*.72}if(b.x>playR-b.r){b.x=playR-b.r;b.vx=-Math.abs(b.vx)*.72}
+  for(let s of sh)s.t=="l"?colLine(p,s):colCircle(p,s);
+  p.maxh=Math.max(p.maxh,floor-b.y);
+  if(b.y+b.r>=floor){
+   if(p.recoveryHop>0){
+    b.y=floor-b.r-1;let stage=4-p.recoveryHop;b.vy=-B*(.48+stage*.22);b.vx*=.88;p.recoveryHop--;
+   } else if(p.maxh>=DEATH_ARM_HEIGHT){
+    splatNow(p);return;
+   } else {
+    b.y=floor-b.r-1;b.vy=-B*.78;b.vx*=.86;p.fallPeak=0;sfxLand();
+   }
+   break;
+  }
+ }
+ let sy=p.b.y-p.cam;if(sy<H*.36)p.tcam=p.b.y-H*.36;else if(sy>H*.7)p.tcam=Math.min(0,p.b.y-H*.7);p.cam+=(p.tcam-p.cam)*.07;
+ p.tcamX=(WORLD_W/2-W/2)+(p.b.x-WORLD_W/2)*.25;p.camX+=(p.tcamX-p.camX)*.08;
+ if(!p.death&&p.finale!==1&&p.finale!==3)p.trail.push({x:p.b.x,y:p.b.y});
+}
+
+function drBall(ctx2,p,camX,cam,color){
+ ctx2.fillStyle=color;
+ for(let pt of p.particles){ctx2.globalAlpha=Math.max(0,Math.min(1,pt.life));ctx2.beginPath();ctx2.arc(pt.x-camX,pt.y-cam,pt.r,0,Math.PI*2);ctx2.fill()}
+ ctx2.globalAlpha=1;
+ if(p.death===2){
+  let t=p.respawnT;
+  if(t<3.45){
+   let grow=Math.min(1,t/.22),fade=t>2.9?Math.max(0,(3.45-t)/.55):1;
+   ctx2.globalAlpha=fade;ctx2.beginPath();ctx2.ellipse(p.impactX-camX,floor-cam-1,52*grow+8,3.5+5*grow,0,0,Math.PI*2);ctx2.fill();ctx2.globalAlpha=1;
+  } else {
+   let q=Math.min(1,(t-3.45)/1.55),ease=1-Math.pow(1-q,3);
+   let rr=p.b.r*ease,cy=floor-cam-rr;
+   ctx2.beginPath();ctx2.ellipse(WORLD_W/2-camX,cy,Math.max(2,rr*(1.28-.28*ease)),Math.max(1.5,rr),0,0,Math.PI*2);ctx2.fill();
+  }
+  return;
+ }
+ if(p.finale===1){
+  let q=Math.min(1,p.finaleT/1.35);
+  ctx2.save();ctx2.globalAlpha=.22+.58*q;ctx2.strokeStyle=color;ctx2.lineWidth=2+7*q;
+  ctx2.beginPath();ctx2.arc(WORLD_W/2-camX,p.b.y-cam,72*(1-.2*q),0,Math.PI*2);ctx2.stroke();ctx2.restore();
+ }
+ if(p.finale===2){
+  ctx2.save();let sp=Math.min(1,Math.abs(p.b.vy)/1500);
+  for(let i=0;i<10;i++){let ox=(Math.random()-.5)*45,oy=16+Math.random()*120;ctx2.globalAlpha=.06+Math.random()*.22;ctx2.strokeStyle=color;ctx2.lineWidth=1+Math.random()*2;ctx2.beginPath();ctx2.moveTo(p.b.x+ox-camX,p.b.y-cam+oy);ctx2.lineTo(p.b.x+ox*.65-camX,p.b.y-cam+oy+28+65*sp);ctx2.stroke()}
+  ctx2.restore();
+ }
+ ctx2.beginPath();ctx2.arc(p.b.x-camX,p.b.y-cam,p.b.r,0,Math.PI*2);ctx2.fill();
+}
+// own trail/ball always drawn in the normal theme color, the OTHER player's always in the fixed accent
+// color — "self = normal, other = accent" symmetrically from whichever half you're looking at, so it
+// never depends on whether you happen to be P1 or P2.
+function drTrail(ctx2,camX,cam,tp,color,alpha,width){
+ if(tp.trail.length<2)return;
+ ctx2.save();ctx2.globalAlpha=alpha;ctx2.strokeStyle=color;ctx2.lineWidth=width;ctx2.lineJoin="round";ctx2.lineCap="round";
+ ctx2.beginPath();ctx2.moveTo(tp.trail[0].x-camX,tp.trail[0].y-cam);
+ for(let i=1;i<tp.trail.length;i++)ctx2.lineTo(tp.trail[i].x-camX,tp.trail[i].y-cam);
+ ctx2.stroke();ctx2.restore();
+}
+function dr(p,other,c){
+ const ctx2=ctx(c),pal=PALETTE[theme];
+ ctx2.fillStyle=pal.bg;ctx2.fillRect(0,0,W,H);
+ let fy=floor-p.cam;
+ if(fy>-10&&fy<H+10){ctx2.strokeStyle=pal.fg;ctx2.lineWidth=5;ctx2.lineCap="round";ctx2.beginPath();ctx2.moveTo(0,fy);ctx2.lineTo(W,fy);ctx2.stroke()}
+ // both trails, reprojected into THIS player's camera (p.camX/p.cam) — same shared world coordinates.
+ drTrail(ctx2,p.camX,p.cam,p,pal.fg,.4,1);
+ drTrail(ctx2,p.camX,p.cam,other,P2_COLOR,.5,1.6);
+ ctx2.strokeStyle=pal.fg;ctx2.lineWidth=5;ctx2.lineCap="round";
+ for(let s of sh){
+  let y=s.y-p.cam;if(y<-150||y>H+150)continue;
+  ctx2.beginPath();
+  if(s.t=="l"){ctx2.moveTo(s.x-p.camX,y);ctx2.lineTo(s.x-p.camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else ctx2.arc(s.x-p.camX,y,s.r,0,Math.PI*2);
+  ctx2.stroke();
+ }
+ // other player's ball/ghost drawn UNDER my own ball, so I'm never visually hidden behind them if
+ // we're near-overlapping. drBall's own death/finale branches already handle the full animation for
+ // whichever player struct is passed in, so no extra visibility gating is needed here.
+ drBall(ctx2,other,p.camX,p.cam,P2_COLOR);
+ drBall(ctx2,p,p.camX,p.cam,pal.fg);
+}
+
+function loop(t){
+ let dt=Math.min((t-last)/1000,1/30);last=t;
+ if(!raceOver){up(p1,dt);up(p2,dt)}
+ document.querySelector("#t1").textContent=fmt(((p1.finishTime||performance.now())-p1.runStart)/1000);
+ document.querySelector("#t2").textContent=fmt(((p2.finishTime||performance.now())-p2.runStart)/1000);
+ document.querySelector("#h1").textContent=Math.floor(p1.maxh/10)+" m";
+ document.querySelector("#h2").textContent=Math.floor(p2.maxh/10)+" m";
+ dr(p1,p2,c1);dr(p2,p1,c2);
+ requestAnimationFrame(loop);
+}
+function fmt(secs){const m=Math.floor(secs/60),s=secs-m*60;return String(m).padStart(2,"0")+":"+s.toFixed(1).padStart(4,"0")}
+addEventListener("resize",rs);rs();requestAnimationFrame(loop);
+</script>
