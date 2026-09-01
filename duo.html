@@ -364,5 +364,12 @@ function loop(t){
 function fmt(secs){const m=Math.floor(secs/60),s=secs-m*60;return String(m).padStart(2,"0")+":"+s.toFixed(1).padStart(4,"0")}
 document.querySelector("#playAgainBtn").addEventListener("click",e=>{e.stopPropagation();location.reload()});
 addEventListener("contextmenu",e=>e.preventDefault());
+// Same belt-and-braces zoom guard as the single-player build — blocks Safari's pinch gesture events,
+// any multi-touch move, and the classic double-tap-zoom pattern.
+addEventListener("gesturestart",e=>e.preventDefault());
+addEventListener("gesturechange",e=>e.preventDefault());
+addEventListener("touchmove",e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+let lastTapAt=0;
+addEventListener("touchend",e=>{const now=Date.now();if(now-lastTapAt<300)e.preventDefault();lastTapAt=now},{passive:false});
 addEventListener("resize",rs);rs();requestAnimationFrame(loop);
 </script>
