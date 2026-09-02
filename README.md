@@ -3,7 +3,7 @@ a blank piece of paper, about to get inky.
 
 note to self 31.08.26, 13:33
 
-welcome whitey, or yellowy or brownie,
+welcome whitey, or blackey or gray
 
 no matter who you chose to be today, 
 
