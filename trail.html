@@ -305,11 +305,21 @@ function findHotspots(){
  // attempts near one stubborn platform fan out over a real patch as the ball bounces up and falls
  // back. So: bucket into a grid, then score each cell by itself plus its 8 neighbours (a cheap blur)
  // so that whole bounce-and-retry patch reads as one hotspot instead of being split across cells.
+ // Split the trail into per-life segments first — the same >140-world-unit jump used elsewhere
+ // (exportLifeOverview) to mean "a death/respawn happened here, don't draw a connector across it".
+ // This is what "hardest" needs below: a life that dwelled a long time in one small area vs. a life
+ // that just flew straight through it.
+ let lifeIdx=0,prevPt=null;
+ const lifeOf=climbTrail.map(p=>{
+   if(prevPt&&Math.hypot(p.x-prevPt.x,p.y-prevPt.y)>140)lifeIdx++;
+   prevPt=p;return lifeIdx;
+ });
  const cell=90,cells={};
  climbTrail.forEach((p,idx)=>{
    const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
-   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0,si:0,minX:p.x,maxX:p.x};cells[k]=c}
-   c.n++;c.sx+=p.x;c.sy+=p.y;c.si+=idx;
+   let c=cells[k];if(!c){c={cx,cy,n:0,dwell:{},sx:0,sy:0,si:0,minX:p.x,maxX:p.x};cells[k]=c}
+   const li=lifeOf[idx];
+   c.n++;c.dwell[li]=(c.dwell[li]||0)+1;c.sx+=p.x;c.sy+=p.y;c.si+=idx;
    if(p.x<c.minX)c.minX=p.x;if(p.x>c.maxX)c.maxX=p.x;
  });
  const list=Object.values(cells);
@@ -326,6 +336,25 @@ function findHotspots(){
    // average CHRONOLOGICAL position in the run (mean trail index) — see the start-of-run exclusion
    // below for why height alone can't be trusted to detect "still just testing the controls".
    c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;c.blurAvgY=blurSY/score;c.blurAvgIdx=blurSI/score;
+ }
+ // "Hardest" is still the highest-density spot — but raw point count alone is the wrong density to
+ // use for it, because every respawn restarts you at the very bottom of the level (see the respawn
+ // code below): a death much higher up forces every subsequent life to fly back PAST the same lower
+ // platforms again on the way up, piling raw frame-count onto them no matter how easy they actually
+ // were, purely from being retraversed many times over. A clean single pass through a gap only ever
+ // leaves a handful of points there; genuinely getting stuck retrying in one spot leaves many, within
+ // ONE life. So: a life's presence in a cell only counts toward hard-density once it actually dwelled
+ // there a while (DWELL_MIN frames — well above a normal clean transit, comfortably below a real
+ // struggle); several separate lives that each genuinely struggled at the same spot still stack
+ // additively, same as before — that's real repeated difficulty, not a repeated fly-by.
+ const DWELL_MIN=35;
+ for(const c of list){
+   let hardScore=0;
+   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+     const n=cells[(c.cx+dx)+","+(c.cy+dy)];
+     if(n)for(const li in n.dwell){const d=n.dwell[li];if(d>=DWELL_MIN)hardScore+=d}
+   }
+   c.hardScore=hardScore;
  }
  // A cell that's just one jump retraced straight up and down in place has almost no horizontal
  // spread — it reads as a single boring line in the crop, whichever category it would otherwise
@@ -357,8 +386,15 @@ function findHotspots(){
  const pastStart=c=>(startY-c.sy/c.n)>START_MARGIN&&c.blurAvgIdx>START_INDEX_MARGIN;
  const hardPool=spreadPool.filter(pastStart);
  const hardCandidates=hardPool.length?hardPool:spreadPool;
+ // Highest hard-density wins, full stop. hardScore is 0 for a candidate made up entirely of clean
+ // fly-throughs (no life ever dwelled there), so if EVERY candidate is such a fly-through — a very
+ // fast or very easy run with no real dwelling anywhere — fall back to the plain (undiscounted)
+ // density so a hardest pick is still always returned rather than an arbitrary zero-score cell.
+ const anyDwell=hardCandidates.some(c=>c.hardScore>0);
  let hardest=hardCandidates[0];
- for(const c of hardCandidates)if(c.score>hardest.score)hardest=c;
+ if(anyDwell){for(const c of hardCandidates)if(c.hardScore>hardest.hardScore)hardest=c}
+ else{for(const c of hardCandidates)if(c.score>hardest.score)hardest=c}
+ const NEAR_DEATH=200;
  // "Happiest": light, quick traffic — judged on the same blurred score (not the cell's own raw
  // count), so a low-traffic edge cell that's still sitting right next to the struggle patch stays
  // disqualified by its busy neighbours, instead of accidentally winning on a technicality.
@@ -378,7 +414,6 @@ function findHotspots(){
  // (each normalised to this run's own range, so it adapts to a short or a long run alike), and take
  // the best combination — a quiet stretch deep into the climb beats an equally quiet one near the
  // bottom.
- const NEAR_DEATH=200;
  const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
  const safeCandidates=spreadPool.filter(c=>c!==hardest&&!nearDeath(c)&&pastStart(c));
  const pool=safeCandidates.length?safeCandidates:spreadPool.filter(c=>c!==hardest&&!nearDeath(c));
