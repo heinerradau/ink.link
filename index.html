@@ -258,24 +258,26 @@ function findHotspots(){
  // back. So: bucket into a grid, then score each cell by itself plus its 8 neighbours (a cheap blur)
  // so that whole bounce-and-retry patch reads as one hotspot instead of being split across cells.
  const cell=90,cells={};
- for(const p of climbTrail){
+ climbTrail.forEach((p,idx)=>{
    const cx=Math.floor(p.x/cell),cy=Math.floor(p.y/cell),k=cx+","+cy;
-   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0,minX:p.x,maxX:p.x};cells[k]=c}
-   c.n++;c.sx+=p.x;c.sy+=p.y;
+   let c=cells[k];if(!c){c={cx,cy,n:0,sx:0,sy:0,si:0,minX:p.x,maxX:p.x};cells[k]=c}
+   c.n++;c.sx+=p.x;c.sy+=p.y;c.si+=idx;
    if(p.x<c.minX)c.minX=p.x;if(p.x>c.maxX)c.maxX=p.x;
- }
+ });
  const list=Object.values(cells);
  for(const c of list){
-   let score=0,blurMinX=c.minX,blurMaxX=c.maxX,blurSY=0;
+   let score=0,blurMinX=c.minX,blurMaxX=c.maxX,blurSY=0,blurSI=0;
    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
      const n=cells[(c.cx+dx)+","+(c.cy+dy)];
-     if(n){score+=n.n;blurSY+=n.sy;if(n.minX<blurMinX)blurMinX=n.minX;if(n.maxX>blurMaxX)blurMaxX=n.maxX}
+     if(n){score+=n.n;blurSY+=n.sy;blurSI+=n.si;if(n.minX<blurMinX)blurMinX=n.minX;if(n.maxX>blurMaxX)blurMaxX=n.maxX}
    }
    // blurSY/score is the whole blurred patch's average height, not just this one raw cell's — used
    // below so the flow-quality height comparison isn't thrown off by a patch that happens to straddle
    // a grid line and get its points split unevenly across two or three raw cells (score is already the
-   // blurred point count, so it's also the right denominator here).
-   c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;c.blurAvgY=blurSY/score;
+   // blurred point count, so it's also the right denominator here). blurSI/score is the same patch's
+   // average CHRONOLOGICAL position in the run (mean trail index) — see the start-of-run exclusion
+   // below for why height alone can't be trusted to detect "still just testing the controls".
+   c.score=score;c.blurMinX=blurMinX;c.blurMaxX=blurMaxX;c.blurAvgY=blurSY/score;c.blurAvgIdx=blurSI/score;
  }
  // A cell that's just one jump retraced straight up and down in place has almost no horizontal
  // spread — it reads as a single boring line in the crop, whichever category it would otherwise
@@ -293,9 +295,19 @@ function findHotspots(){
  // Idle bouncing in place right at the spawn — waiting around, not climbing — packs a huge point
  // count into one tiny patch and must never win "hardest" on that technicality alone; it has nothing
  // to do with real difficulty. Require real progress past the start, same bar "happiest" uses below.
+ //
+ // Height alone can't detect this, though: every bounce off a platform launches the ball hard
+ // upward by design (that's the "fall further, rebound stronger" feel), so even the very first
+ // bounce right off the spawn platform can clear the height bar on its own — three test-jumps on
+ // the very first platform can easily reach further "up" than START_MARGIN allows, while still
+ // being nothing but the player finding out what the controls do. So exclude by BOTH how far up a
+ // patch is AND how early it happened in the run (its mean position in the trail's own timeline) —
+ // a patch only counts as real progress once it clears both bars.
  const startY=climbTrail[0].y;
  const START_MARGIN=120;
- const hardPool=spreadPool.filter(c=>(startY-c.sy/c.n)>START_MARGIN);
+ const START_INDEX_MARGIN=Math.min(300,Math.max(90,climbTrail.length*.12));
+ const pastStart=c=>(startY-c.sy/c.n)>START_MARGIN&&c.blurAvgIdx>START_INDEX_MARGIN;
+ const hardPool=spreadPool.filter(pastStart);
  const hardCandidates=hardPool.length?hardPool:spreadPool;
  let hardest=hardCandidates[0];
  for(const c of hardCandidates)if(c.score>hardest.score)hardest=c;
@@ -320,7 +332,7 @@ function findHotspots(){
  // bottom.
  const NEAR_DEATH=200;
  const nearDeath=c=>{const cx=c.sx/c.n,cy=c.sy/c.n;return deathSpots.some(d=>Math.hypot(cx-d.x,cy-d.y)<NEAR_DEATH)};
- const safeCandidates=spreadPool.filter(c=>c!==hardest&&!nearDeath(c)&&(startY-c.sy/c.n)>START_MARGIN);
+ const safeCandidates=spreadPool.filter(c=>c!==hardest&&!nearDeath(c)&&pastStart(c));
  const pool=safeCandidates.length?safeCandidates:spreadPool.filter(c=>c!==hardest&&!nearDeath(c));
  const finalPool=pool.length?pool:spreadPool.filter(c=>c!==hardest);
  // Fewest lines isn't the whole story either — HOW those few lines got there matters. The best kind
