@@ -1,5 +1,5 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1</title><meta name="description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:type" content="website"><meta property="og:title" content="ink.link — kletter so hoch du kannst"><meta property="og:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:image" content="https://heinerradau.github.io/ink.link/og-image.png"><meta property="og:url" content="https://heinerradau.github.io/ink.link/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ink.link — kletter so hoch du kannst"><meta name="twitter:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta name="twitter:image" content="https://heinerradau.github.io/ink.link/og-image.png">
-<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}input,textarea{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}input,textarea{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#hearts{display:flex;gap:3px;font-size:13px;line-height:1}#hearts .heart{opacity:.92;transition:opacity .25s}#hearts .heart.empty{opacity:.2}#hearts .heart.regen{animation:heartPulse 1.1s ease-in-out infinite}@keyframes heartPulse{0%,100%{opacity:.28}50%{opacity:.8}}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
 #invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
 #invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
 #invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
@@ -37,24 +37,26 @@
 .ctrlBtn{pointer-events:auto;width:112px;height:112px;background:rgba(var(--fg-rgb),.07);border:3px solid rgba(var(--fg-rgb),.4);border-radius:10px;display:flex;align-items:center;justify-content:center;font:42px monospace;color:var(--fg);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
 .ctrlBtn:active{background:rgba(var(--fg-rgb),.24);border-color:var(--fg)}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
-<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="ctrlPad"><button class="ctrlBtn" id="btnL" type="button" aria-label="Move left">◀</button><button class="ctrlBtn" id="btnR" type="button" aria-label="Move right">▶</button></div><div id="w"><div id="invite">
+<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="hearts"></div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="ctrlPad"><button class="ctrlBtn" id="btnL" type="button" aria-label="Move left">◀</button><button class="ctrlBtn" id="btnR" type="button" aria-label="Move right">▶</button></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
-<div class="lvl">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
+<div class="lvl" id="lvlLine">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
 <div id="recap">
   <div class="recapCol"><canvas id="cropHard" width="200" height="200"></canvas><div class="recapLabel">Your hardest times</div></div>
   <div class="recapCol"><canvas id="cropHappy" width="200" height="200"></canvas><div class="recapLabel">Your happiest moments</div></div>
 </div>
 <div id="avgLife"></div>
 <button id="exportBtn" type="button">EXPORT LIFE OVERVIEW ↓</button>
+<div id="scoreSection">
 <div id="topScores"></div>
 <form id="scoreForm">
   <input id="playerName" type="text" maxlength="24" autocomplete="nickname" placeholder="YOUR NAME" required aria-label="Player name">
   <button id="scoreSubmit" type="submit">SAVE SCORE</button>
 </form>
 <div id="scoreStatus" aria-live="polite"></div>
+</div>
 <button id="playAgainBtn" type="button">PLAY AGAIN ↻</button>
-<h1>YOU MADE IT.<br>WELCOME TO INK.LINK.</h1>
-<p class="sub">This was only the first level.<br><br>What happens next, we can build together.</p>
+<h1 id="endHeading">YOU MADE IT.<br>WELCOME TO INK.LINK.</h1>
+<p class="sub" id="endSub">This was only the first level.<br><br>What happens next, we can build together.</p>
 <a id="join" href="https://github.com/heinerradau/ink.link" target="_blank" rel="noopener noreferrer">SEE MORE →</a>
 <div class="repoHint">INK.LINK ON GITHUB</div><div class="or">HELP BUILD IT OR HEAR WHEN NEW LEVELS DROP</div>
 <form id="inviteForm">
@@ -74,6 +76,23 @@ let trail=[];
 // Where every death happened this run — used to keep a spot right next to a crash from ever being
 // picked as a "happiest moment" just because it happens to have few crossing lines near it.
 let deathSpots=[];
+// Three hearts: each fall breaks one. A broken heart slowly regenerates while you're climbing
+// (not while dead/recovering). Dying again with zero hearts left ends the run — no more infinite
+// respawns — and shows the same hardest/happiest recap the win screen uses, just framed as a run
+// summary instead of a victory. HEART_REGEN_TIME is the only knob: raise it to make the run less
+// forgiving, lower it to make struggling runs easier to recover from.
+const MAX_HEARTS=3,HEART_REGEN_TIME=15;
+let hearts=MAX_HEARTS,heartRegenT=0,isGameOver=0,pendingGameOver=0;
+function updateHearts(){
+ const el=document.querySelector("#hearts");if(!el)return;
+ let s="";
+ for(let i=0;i<MAX_HEARTS;i++){
+   if(i<hearts)s+='<span class="heart full">♥</span>';
+   else if(i===hearts)s+='<span class="heart regen">♥</span>';
+   else s+='<span class="heart empty">♥</span>';
+ }
+ el.innerHTML=s;
+}
 // How many trail points belonged to genuine mid-run climbing, before the finale flourish (flying up
 // into the ending circle) began. -1 means the run hasn't reached the finale yet (use the whole trail).
 let climbEnd=-1;
@@ -135,7 +154,7 @@ function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.w
 playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
-function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];hearts=MAX_HEARTS;heartRegenT=0;isGameOver=0;pendingGameOver=0;updateHearts();b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
 cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
 ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
@@ -239,10 +258,28 @@ function splatNow(){
  sfxSplat();
  if(lifeStart!=null){lifeDurations.push(performance.now()-lifeStart);lifeStart=null}
  deathSpots.push({x:b.x,y:b.y});
+ // Break a heart on this fall, if any are left. A fall that happens while hearts are ALREADY at
+ // zero (nothing left to break) is the one that ends the run — flagged here, acted on once the
+ // recovery pause finishes, in the death===2 branch of up().
+ pendingGameOver=hearts<=0;
+ if(hearts>0){hearts--;heartRegenT=0;updateHearts()}
  death=2;deathT=0;respawnT=0;splat=0;
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;
  burst();cam+=(0-cam)*.55;
+}
+function gameOver(){
+ if(isGameOver||finishTime)return;
+ isGameOver=1;finishTime=performance.now();
+ const elapsed=finishTime-runStart;
+ recordScore(elapsed);
+ renderRecap();
+ document.querySelector("#lvlLine").textContent="RUN ENDED";
+ document.querySelector("#endHeading").innerHTML="OUT OF HEARTS.<br>THE TRAIL STOPS HERE.";
+ document.querySelector("#endSub").innerHTML="No hearts left to break. Your hardest and happiest moments are below —<br>play again and see how far the next run gets.";
+ document.querySelector("#scoreSection").style.display="none";
+ win.style.display="flex";
+ document.querySelector("#ctrlPad").style.display="none";
 }
 // ===== end-of-run recap: the trail itself becomes a small artwork =====
 const WORLD_CROP=440;
@@ -492,6 +529,7 @@ function up(dt){
  // without this guard that silently added tens of thousands of world-units of runaway "fall" to the
  // trail for every second the recap stayed open, swamping the real climb in the exported artwork.
  if(!death&&finale!==1&&finale!==3)trail.push({x:b.x,y:b.y});
+ if(!death&&!finale&&hearts<MAX_HEARTS){heartRegenT+=dt;if(heartRegenT>=HEART_REGEN_TIME){hearts++;heartRegenT=0;updateHearts()}}
  if(finale){
    finaleT+=dt;
    if(finale===1){
@@ -522,6 +560,7 @@ function up(dt){
      tcam=0;cam+=(0-cam)*Math.min(1,dt*12);
      respawnT+=dt;
      if(respawnT>=5){
+       if(pendingGameOver){gameOver();return}
        death=0;respawnT=0;recoveryHop=3;b.x=WORLD_W/2;b.y=floor-b.r-2;b.vx=0;b.vy=-B*.48;K.l=K.r=0;sfxRespawn();lifeStart=performance.now();
      }
    }
