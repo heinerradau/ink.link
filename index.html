@@ -633,3 +633,4 @@ document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagat
 document.querySelector("#playAgainBtn").addEventListener("click",e=>{e.stopPropagation();location.reload()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
 </script>
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "cc7ca0701d5a41dcbe2c52e54f1d84c2"}'></script><!-- End Cloudflare Web Analytics -->
