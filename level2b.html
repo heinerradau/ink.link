@@ -259,58 +259,58 @@ raceWinner=0;eK={l:0,r:0};eHearts=MAX_HEARTS;eDeath=0;eDeathT=0;eRespawnT=0;eFal
 // ══ NEW WORLD: a zig-zag of rings & rotating strokes (no trunk, no fork) ══
 cr(0,115,58);
 ln(-170,225,150,0);
-rb(70,345,150,0.45,"mid",0);
+rb(70,345,150,0.19,"mid",0);
 cr(-150,470,46);
 ln(60,585,150,0);
-rb(-90,705,150,-0.4,"mid",1.2);
+rb(-90,705,150,-0.17,"mid",1.2);
 cr(140,830,46);
 ln(-60,945,150,0);
-rb(110,1065,150,0.45,"mid",2.4);
+rb(110,1065,150,0.19,"mid",2.4);
 cr(-130,1190,48);
 ln(70,1305,150,0);
-rb(-80,1425,155,-0.4,"mid",0.6);
+rb(-80,1425,155,-0.17,"mid",0.6);
 cr(120,1550,48);
 ln(-70,1665,155,0);
-rb(90,1785,155,0.45,"mid",1.8);
+rb(90,1785,155,0.19,"mid",1.8);
 cr(-140,1910,50);
 ln(60,2025,155,0);
-rb(-100,2145,155,-0.4,"mid",3.0);
+rb(-100,2145,155,-0.17,"mid",3.0);
 cr(130,2270,50);
 ln(-60,2385,155,0);
 // big hub ring the climb wraps around
 cr(0,2530,86);
 ln(-170,2655,150,.14);
-rb(80,2775,155,-0.45,"mid",1.1);
+rb(80,2775,155,-0.19,"mid",1.1);
 cr(-150,2900,48);
 ln(60,3015,155,0);
-rb(-90,3135,155,0.4,"mid",2.3);
+rb(-90,3135,155,0.17,"mid",2.3);
 cr(140,3260,48);
 ln(-70,3375,155,0);
-rb(110,3495,155,-0.45,"mid",0.5);
+rb(110,3495,155,-0.19,"mid",0.5);
 cr(-130,3620,50);
 ln(70,3735,155,0);
-rb(-80,3855,155,0.4,"mid",1.7);
+rb(-80,3855,155,0.17,"mid",1.7);
 cr(120,3980,50);
 ln(-60,4095,155,0);
-rb(90,4215,155,-0.45,"mid",2.9);
+rb(90,4215,155,-0.19,"mid",2.9);
 cr(-140,4340,52);
 ln(60,4455,155,0);
-rb(-100,4575,155,0.4,"mid",1.0);
+rb(-100,4575,155,0.17,"mid",1.0);
 cr(130,4700,52);
 ln(-70,4815,155,0);
-rb(110,4935,155,-0.45,"mid",2.2);
+rb(110,4935,155,-0.19,"mid",2.2);
 cr(-130,5060,52);
 ln(70,5175,155,0);
-rb(-80,5295,155,0.4,"mid",0.4);
+rb(-80,5295,155,0.17,"mid",0.4);
 cr(120,5420,54);
 ln(-60,5535,155,0);
-rb(90,5655,155,-0.45,"mid",1.6);
+rb(90,5655,155,-0.19,"mid",1.6);
 cr(-140,5780,54);
 ln(60,5895,155,0);
-rb(-100,6015,155,0.4,"mid",2.8);
+rb(-100,6015,155,0.17,"mid",2.8);
 cr(130,6140,54);
 ln(-70,6255,155,0);
-rb(110,6375,155,-0.45,"mid",1.4);
+rb(110,6375,155,-0.19,"mid",1.4);
 cr(0,6510,62);
 // ══ GOAL: a big ring to finish inside ══
 goal(0,6760,80);
@@ -378,12 +378,12 @@ function colLine(s){
  b.y=qy+ny*(hitR+.35);
 
  let dot=b.vx*nx+b.vy*ny;
- if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;if(s.t==="r"){const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);b.vx+=s.spd*-ry;b.vy+=s.spd*rx}sfxBounce(-dot/1100,s.len,s.t==="r"?"mover":(s.t==="b"?(s.mover?"mover":"box"):"line"));bounceLog.push({x:b.x,y:b.y,s,ti:trail.length})}
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;if(s.t==="r"){const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);b.vx+=s.spd*-ry*0.35;b.vy+=s.spd*rx*0.35}sfxBounce(-dot/1100,s.len,s.t==="r"?"mover":(s.t==="b"?(s.mover?"mover":"box"):"line"));bounceLog.push({x:b.x,y:b.y,s,ti:trail.length})}
 
  let fallBoost=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
  let target=-B*.94*fallBoost;
  if(b.vy>target)b.vy=target;
- b.vx+=Math.sin(s.a)*B*.28;
+ b.vx+=Math.sin(s.a)*B*(s.t==="r"?.12:.28);
  b.vx=Math.max(-MAX,Math.min(MAX,b.vx));
  fallPeak=0;
 }function colCircle(s){
