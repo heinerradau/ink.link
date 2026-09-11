@@ -159,7 +159,7 @@ let theme="dark";
 try{theme=localStorage.getItem("il_theme")==="light"?"light":"dark"}catch(_){}
 const PALETTE={dark:{bg:"#050505",fg:"#fff"},light:{bg:"#f4f2ec",fg:"#16161a"}};
 function applyTheme(){document.documentElement.setAttribute("data-theme",theme);themeBtn.textContent=theme==="light"?"☀":"☾"}
-function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme();if(ambOn&&actx&&ambBus){const t=actx.currentTime;ambBus.gain.cancelScheduledValues(t);ambBus.gain.setValueAtTime(ambBus.gain.value,t);ambBus.gain.linearRampToValueAtTime(0,t+.09);ambBus.gain.linearRampToValueAtTime(1,t+.22);clearTimeout(ambTimer);ambTimer=setTimeout(ambNote,110)}}
+function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("il_theme",theme)}catch(_){}applyTheme();if(ambOn&&actx&&ambBus){const t=actx.currentTime;ambBus.gain.cancelScheduledValues(t);ambBus.gain.setValueAtTime(ambBus.gain.value,t);ambBus.gain.linearRampToValueAtTime(0,t+.09);ambBus.gain.linearRampToValueAtTime(1,t+.22);clearTimeout(ambTimer);ambTimer=setTimeout(beatTick,110)}}
 applyTheme();themeBtn.addEventListener("click",e=>{e.stopPropagation();toggleTheme()});
 // ===== retro chiptune audio: eerie GB-style pulse/triangle synth in dark mode, brighter major-key synth in light mode, no samples/files =====
 let actx=null,mstG=null,ambBus=null,sndOn=true,ambOn=false,ambTimer=null;
@@ -177,6 +177,19 @@ function sfxBounce(strength,len,kind){
   tone(base+35,.17+s*.05,"sine",.32+s*.22,base*.5);
   return;
  }
+ if(kind==="box"){
+  // Boxes: a blunt, blocky "brick" hit — low square with a fast decay, nothing melodic.
+  const f=98+Math.max(0,Math.min(1,1-((len||140)-90)/260))*46;
+  tone(f,.11+s*.05,"square",.26+s*.2,f*.5);
+  return;
+ }
+ if(kind==="mover"){
+  // Moving platforms: a warbling tone that hints the ground itself is unstable.
+  const f=300+Math.max(0,Math.min(1,1-((len||140)-90)/260))*140;
+  tone(f,.13+s*.05,"sawtooth",.2+s*.16,f*.62);
+  tone(f*.5,.13+s*.05,"square",.09,(f*.5)*1.5);
+  return;
+ }
  // Bars: pick a note from a fixed scale by platform length — short bar = high "hi-hat"-like tick,
  // long bar = low "kick"-like thud — so climbing plays out like stepping through a beat sequence.
  const ln=len||150,t=Math.max(0,Math.min(1,1-(ln-75)/240)),idx=Math.round(t*(LINE_NOTES.length-1)),f=LINE_NOTES[idx];
@@ -187,21 +200,42 @@ function sfxSplat(){if(!actx||!sndOn)return;const t=actx.currentTime,n=Math.floo
 function sfxRespawn(){tone(330,.06,"square",.2,520);setTimeout(()=>tone(520,.07,"square",.18,760),70)}
 function sfxLaunch(){tone(120,.5,"sawtooth",.16,900)}
 function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.2,"triangle",.24),i*95))}
-const AMB_SCALE_DARK=[220,207.65,196,164.81,146.83,196,174.61,164.81];
-const AMB_SCALE_LIGHT=[523.25,587.33,659.25,783.99,880,987.77,659.25,783.99];
-let ambIdx=0;
-function ambNote(){
- if(!actx||!sndOn){ambTimer=setTimeout(ambNote,1400);return}
- const light=theme==="light",scale=light?AMB_SCALE_LIGHT:AMB_SCALE_DARK;
- const t=actx.currentTime,f=scale[ambIdx++%scale.length],o=actx.createOscillator(),lfo=actx.createOscillator(),lfoG=actx.createGain(),g=actx.createGain(),dl=actx.createDelay(),fb=actx.createGain();
- const dur=light?.9:2.1,attack=light?.02:.45,peak=light?.12:.09;
- o.type="triangle";o.frequency.value=f;lfo.frequency.value=light?6:4.4;lfoG.gain.value=light?1.2:2.2;lfo.connect(lfoG);lfoG.connect(o.frequency);
- g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+attack);g.gain.exponentialRampToValueAtTime(.001,t+dur);
- dl.delayTime.value=light?.18:.44;fb.gain.value=light?.15:.36;dl.connect(fb);fb.connect(dl);
- o.connect(g);g.connect(ambBus);g.connect(dl);dl.connect(ambBus);lfo.start(t);lfo.stop(t+dur+.1);o.start(t);o.stop(t+dur+.1);
- ambTimer=setTimeout(ambNote,light?450+Math.random()*350:1700+Math.random()*1500);
+// ===== Gameboy-style chiptune step sequencer =====
+// Dark = moody A-minor dungeon loop (turntable bass + sparse lead), Light = bright C-major town
+// loop, faster and bouncier. Patterns are plain note arrays (Hz, 0 = rest); bass and lead step
+// independently so the two layers drift and never feel like a fixed 8-bar tape.
+const NT={C2:65.41,D2:73.42,E2:82.41,F2:87.31,G2:98,A2:110,B2:123.47,C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196,A3:220,B3:246.94,C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880,C6:1046.5};
+const BEAT_DARK={step:232,
+ bass:[NT.A2,NT.A2,NT.E2,NT.E2,NT.F2,NT.F2,NT.G2,NT.G2],
+ lead:[NT.A4,0,NT.C5,0,NT.B4,0,NT.E4,0,NT.D4,0,NT.E4,0,NT.A4,0,0,0],
+ hat:[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],bassVol:.15,leadVol:.075,hatVol:.05};
+const BEAT_LIGHT={step:150,
+ bass:[NT.C3,NT.G2,NT.A2,NT.F2],
+ lead:[NT.C5,NT.E5,NT.G5,NT.E5,NT.F5,NT.A5,NT.G5,NT.E5],
+ hat:[0,1,0,1,0,1,0,1],bassVol:.13,leadVol:.07,hatVol:.045};
+let beatStep=0;
+function beatNote(f,dur,type,vol,slide){
+ const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
+ o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur*.8);
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+ o.connect(g);g.connect(mstG);o.start(t);o.stop(t+dur+.02);
 }
-function startAmbient(){if(ambOn)return;ambOn=true;ambNote()}
+function beatHat(vol){
+ const t=actx.currentTime,n=Math.floor(actx.sampleRate*.03),buf=actx.createBuffer(1,n,actx.sampleRate),d=buf.getChannelData(0);
+ for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+ const src=actx.createBufferSource();src.buffer=buf;const hp=actx.createBiquadFilter();hp.type="highpass";hp.frequency.value=5200;
+ const g=actx.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+.03);
+ src.connect(hp);hp.connect(g);g.connect(ambBus);src.start(t);
+}
+function beatTick(){
+ if(!actx||!sndOn){ambTimer=setTimeout(beatTick,300);return}
+ const light=theme==="light",P=light?BEAT_LIGHT:BEAT_DARK,i=beatStep++;
+ const b=P.bass[i%P.bass.length];if(b)beatNote(b,light?.17:.34,"triangle",P.bassVol,light?.7:.5);
+ const l=P.lead[i%P.lead.length];if(l)beatNote(l,light?.13:.28,"square",P.leadVol,0);
+ if(P.hat[i%P.hat.length])beatHat(P.hatVol);
+ ambTimer=setTimeout(beatTick,P.step);
+}
+function startAmbient(){if(ambOn)return;ambOn=true;beatStep=0;beatTick()}
 function toggleSound(){sndOn=!sndOn;try{localStorage.setItem("il_snd",sndOn?"1":"0")}catch(_){}if(mstG)mstG.gain.value=sndOn?.5:0;if(sndOn)wakeAudio();sndBtn.textContent=sndOn?"♪":"✕";sndBtn.style.opacity=sndOn?.5:.3}
 sndBtn.textContent=sndOn?"♪":"✕";sndBtn.addEventListener("click",e=>{e.stopPropagation();toggleSound()});
 function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);floor=H-50;
@@ -302,7 +336,7 @@ function colLine(s){
  b.y=qy+ny*(hitR+.35);
 
  let dot=b.vx*nx+b.vy*ny;
- if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,"line");bounceLog.push({x:b.x,y:b.y,s,ti:trail.length})}
+ if(dot<0){b.vx-=2*dot*nx;b.vy-=2*dot*ny;sfxBounce(-dot/1100,s.len,s.t==="b"?(s.mover?"mover":"box"):"line");bounceLog.push({x:b.x,y:b.y,s,ti:trail.length})}
 
  let fallBoost=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
  let target=-B*.94*fallBoost;
@@ -401,6 +435,7 @@ function cpuWins(){
  recordScore(finishTime-runStart);
  renderRecap();
  setEndText("lose");
+ document.querySelector("#scoreSection").style.display="none";
  win.style.display="flex";
  document.querySelector("#ctrlPad").style.display="none";
 }
@@ -910,12 +945,12 @@ function upEnemy(dt){
 // The rider is carried along with the platform's movement (lifts/sliders).
 function colBox(s){
  const before=b.y,bvy=b.vy;
- colLine({t:"l",x:s.x,y:s.y,len:s.w,a:0});
+ colLine({t:"b",x:s.x,y:s.y,len:s.w,a:0,mover:!!(s.ox||s.oy)});
  if(b.y!==before && bvy>0 && !b._carry){b.x+=s.dx0;b.y+=s.dy0;b._carry=1}
 }
 function colBoxE(s){
  const before=e.y,evy=e.vy;
- colLineE({t:"l",x:s.x,y:s.y,len:s.w,a:0});
+ colLineE({t:"b",x:s.x,y:s.y,len:s.w,a:0,mover:!!(s.ox||s.oy)});
  if(e.y!==before && evy>0 && !e._carry){e.x+=s.dx0;e.y+=s.dy0;e._carry=1}
 }
 function ballCollide(){
@@ -1006,12 +1041,12 @@ inviteForm.addEventListener("submit",async e=>{
 function formatScore(ms){const sec=ms/1000,m=Math.floor(sec/60),ss=sec-m*60;return String(m).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0")}
 let pendingScore=0;
 const SCOREBOARD_URL="https://ink-link-scoreboard.heinerradau.workers.dev";
-function loadLocalScores(){let q=[];try{q=JSON.parse(localStorage.getItem("inklink-l1-scores")||"[]")}catch(_){}return Array.isArray(q)?q:[]}
+function loadLocalScores(){let q=[];try{q=JSON.parse(localStorage.getItem("inklink-l2-scores")||"[]")}catch(_){}return Array.isArray(q)?q:[]}
 function renderScores(list,label){const q=(list||[]).filter(v=>v&&typeof v==="object"&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);document.querySelector("#topScores").textContent=label+"\n"+(q.length?q.map((v,i)=>(i+1)+".  "+formatScore(v.ms)+"  "+v.name).join("\n"):"NO SAVED SCORES YET")}
-async function showScores(){try{const r=await fetch(SCOREBOARD_URL+"/api/scores?limit=10");if(!r.ok)throw new Error("offline");const d=await r.json();renderScores(d.scores,"TOP SCORES · GLOBAL")}catch(_){renderScores(loadLocalScores(),"TOP SCORES · THIS DEVICE")}}
+async function showScores(){try{const r=await fetch(SCOREBOARD_URL+"/api/scores?limit=10&level=2");if(!r.ok)throw new Error("offline");const d=await r.json();renderScores(d.scores,"TOP RACE TIMES · GLOBAL")}catch(_){renderScores(loadLocalScores(),"TOP RACE TIMES · THIS DEVICE")}}
 function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").textContent=formatScore(ms);showScores()}
 const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
-scoreForm.addEventListener("submit",async e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}scoreSubmit.disabled=true;scoreStatus.textContent="SAVING…";let globalOk=false;try{const r=await fetch(SCOREBOARD_URL+"/api/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,ms:pendingScore})});if(r.ok)globalOk=true}catch(_){}let q=loadLocalScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l1-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent=globalOk?"SCORE SAVED · GLOBAL":"SAVED ON THIS DEVICE (OFFLINE)";scoreSubmit.disabled=true;playerName.disabled=true});
+scoreForm.addEventListener("submit",async e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}scoreSubmit.disabled=true;scoreStatus.textContent="SAVING…";let globalOk=false;try{const r=await fetch(SCOREBOARD_URL+"/api/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,ms:pendingScore,level:2})});if(r.ok)globalOk=true}catch(_){}let q=loadLocalScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l2-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent=globalOk?"SCORE SAVED · GLOBAL":"SAVED ON THIS DEVICE (OFFLINE)";scoreSubmit.disabled=true;playerName.disabled=true});
 document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagation();exportLifeOverview()});
 document.querySelector("#playAgainBtn").addEventListener("click",e=>{e.stopPropagation();location.reload()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
