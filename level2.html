@@ -244,7 +244,7 @@ function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-1
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
 // Box: an axis-aligned rectangle you can stand on (top is a platform) and bump into (walls).
 // ox/oy = optional motion amplitude (set in build2 for the moving-platform pass), sp = phase speed.
-function bx(dx,y,w,h,ox=0,oy=0,sp=0){let xx=Math.max(10,Math.min(WORLD_W/2+dx,WORLD_W-w-10));sh.push({t:"b",x:xx,y:floor-y,w,h,ox,oy,sp,ph:Math.random()*6.283,baseX:xx,baseY:floor-y,dx0:0,dy0:0})}
+function bx(dx,y,w,h,ox=0,oy=0,sp=0){let xx=Math.max(10,Math.min(WORLD_W/2+dx,WORLD_W-w-10));sh.push({t:"b",x:xx,y:floor-y,w,h,ox,oy,sp,ph:(dx*0.013+y*0.007)%6.283,baseX:xx,baseY:floor-y,dx0:0,dy0:0})}
 function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];hearts=MAX_HEARTS;heartRegenT=0;isGameOver=0;pendingGameOver=0;updateHearts();lifeMaxH=0;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 // -- Level 2: reset the rival ball too. It starts parked to the left of the player. --
 raceWinner=0;eK={l:0,r:0};eHearts=MAX_HEARTS;eDeath=0;eDeathT=0;eRespawnT=0;eFallPeak=0;eRecoveryHop=0;eLifeMaxH=0;eTrail=[];eTargetX=null;e={x:WORLD_W/2-46,y:floor-180,vx:0,vy:80,r:11};
