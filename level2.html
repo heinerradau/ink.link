@@ -1,5 +1,8 @@
-<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L1</title><meta name="description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:type" content="website"><meta property="og:title" content="ink.link — kletter so hoch du kannst"><meta property="og:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:image" content="https://heinerradau.github.io/ink.link/og-image.png"><meta property="og:url" content="https://heinerradau.github.io/ink.link/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ink.link — kletter so hoch du kannst"><meta name="twitter:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta name="twitter:image" content="https://heinerradau.github.io/ink.link/og-image.png">
-<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}input,textarea{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#hearts{display:flex;gap:3px;font-size:13px;line-height:1}#hearts .heart{opacity:.92;transition:opacity .25s}#hearts .heart.empty{opacity:.2}#hearts .heart.regen{animation:heartPulse 1.1s ease-in-out infinite}@keyframes heartPulse{0%,100%{opacity:.28}50%{opacity:.8}}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CLIMB L2 — THE FORK</title><meta name="description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:type" content="website"><meta property="og:title" content="ink.link — kletter so hoch du kannst"><meta property="og:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta property="og:image" content="https://heinerradau.github.io/ink.link/og-image.png"><meta property="og:url" content="https://heinerradau.github.io/ink.link/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ink.link — kletter so hoch du kannst"><meta name="twitter:description" content="Ein simples, aber kniffliges Browser-Kletterspiel — kein Download nötig. Wie weit kommst du?"><meta name="twitter:image" content="https://heinerradau.github.io/ink.link/og-image.png">
+<style>:root{--bg:#050505;--fg:#fff;--fg-rgb:255,255,255;--track:#333}[data-theme="light"]{--bg:#f4f2ec;--fg:#16161a;--fg-rgb:22,22,26;--track:#ddd}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;background:var(--bg);color:var(--fg);touch-action:none;transition:background .3s,color .3s;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}input,textarea{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}canvas{display:block;width:100vw;height:100vh}#hud{position:fixed;top:16px;left:16px;display:flex;align-items:center;gap:14px;z-index:5;font-family:monospace;pointer-events:none}#h,#timer{position:static!important;font-size:11px!important;line-height:1!important;letter-spacing:.10em!important;opacity:.55!important;white-space:nowrap}#hearts{display:flex;gap:3px;font-size:13px;line-height:1}#hearts .heart{opacity:.92;transition:opacity .25s}#hearts .heart.empty{opacity:.2}#hearts .heart.regen{animation:heartPulse 1.1s ease-in-out infinite}
+#rivalHud{position:fixed;top:16px;right:16px;display:flex;align-items:center;gap:9px;z-index:5;font-family:monospace;font-size:11px;letter-spacing:.10em;opacity:.62;pointer-events:none}
+#rivalHud .rhearts{display:flex;gap:3px;font-size:13px;line-height:1}
+#rivalHud .heart.empty{opacity:.15}@keyframes heartPulse{0%,100%{opacity:.28}50%{opacity:.8}}#timer:before{content:"TIME ";opacity:.55}#h:after{content:" HEIGHT";opacity:.55}#sndBtn,#themeBtn{pointer-events:auto;cursor:pointer;font-size:13px;opacity:.5;user-select:none;transition:opacity .15s}#sndBtn:hover,#themeBtn:hover{opacity:.85}#p{position:fixed;right:14px;top:15%;height:70%;width:2px;background:var(--track)}#f{position:absolute;bottom:0;width:2px;background:var(--fg)}#w{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;overflow-y:auto;font:12px monospace;letter-spacing:.15em}.inkLogo{width:150px;height:94px;margin:0 auto 22px;position:relative}.inkLogo:before,.inkLogo:after,.inkLogo i{content:"";position:absolute;height:5px;background:var(--fg);border-radius:99px;transform-origin:left center}.inkLogo:before{width:82px;left:13px;top:63px;transform:rotate(-31deg)}.inkLogo:after{width:72px;left:70px;top:20px;transform:rotate(35deg)}.inkLogo i:nth-child(1){width:58px;left:20px;top:28px;transform:rotate(24deg)}.inkLogo i:nth-child(2){width:48px;left:73px;top:65px;transform:rotate(-20deg)}.inkLogo i:nth-child(3){width:34px;left:57px;top:45px;transform:rotate(78deg);opacity:.65}.inkLogo b{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--fg);left:67px;top:38px;box-shadow:-51px -17px 0 -5px var(--fg),55px 24px 0 -5px var(--fg)}
 #invite{max-width:440px;margin:auto;opacity:0;transform:translateY(18px);animation:inviteIn 1.3s ease .4s forwards}
 #invite h1{font:500 26px/1.15 monospace;letter-spacing:.08em;margin:26px 0 8px}
 #invite .sub{font:14px/1.55 monospace;opacity:.72;margin:0 auto 24px;max-width:360px}
@@ -9,8 +12,6 @@
 #topScores{font:10px/1.55 monospace;letter-spacing:.08em;opacity:.55;margin:0 auto 18px;white-space:pre-line}#scoreForm{display:flex;gap:8px;max-width:360px;margin:0 auto 8px}#scoreForm input{flex:1;min-width:0;background:transparent;border:1px solid rgba(var(--fg-rgb),.34);border-radius:999px;color:var(--fg);padding:13px 15px;font:12px monospace;outline:none}#scoreForm button{background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 17px;font:11px monospace;letter-spacing:.08em;cursor:pointer}#scoreStatus{min-height:16px;margin-bottom:16px;font:10px monospace;opacity:.58}.repoHint{margin-top:9px;font:9px monospace;letter-spacing:.08em;opacity:.28}
 #join{display:inline-block;padding:13px 20px;border:1px solid var(--fg);border-radius:999px;color:var(--fg);text-decoration:none;font:12px/1 monospace;letter-spacing:.12em;transition:.2s}
 #join:hover{background:var(--fg);color:var(--bg)}
-#nextLevel{display:inline-block;padding:13px 20px;border:1px solid var(--fg);border-radius:999px;color:var(--bg);background:var(--fg);text-decoration:none;font:12px/1 monospace;letter-spacing:.12em;transition:.2s;margin:0 0 12px}
-#nextLevel:hover{opacity:.8}
 #playAgainBtn{display:inline-block;margin:4px 0 24px;background:var(--fg);color:var(--bg);border:1px solid var(--fg);border-radius:999px;padding:13px 22px;font:11px/1 monospace;letter-spacing:.12em;cursor:pointer;transition:.2s}
 #playAgainBtn:hover{opacity:.82}
 #invite .hint{margin-top:14px;font:10px/1.4 monospace;opacity:.38}
@@ -39,7 +40,7 @@
 .ctrlBtn{pointer-events:auto;width:112px;height:112px;background:rgba(var(--fg-rgb),.07);border:3px solid rgba(var(--fg-rgb),.4);border-radius:10px;display:flex;align-items:center;justify-content:center;font:42px monospace;color:var(--fg);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
 .ctrlBtn:active{background:rgba(var(--fg-rgb),.24);border-color:var(--fg)}
 @keyframes inviteIn{to{opacity:1;transform:translateY(0)}}</style>
-<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="hearts"></div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="ctrlPad"><button class="ctrlBtn" id="btnL" type="button" aria-label="Move left">◀</button><button class="ctrlBtn" id="btnR" type="button" aria-label="Move right">▶</button></div><div id="w"><div id="invite">
+<canvas id="c"></canvas><div id="hud"><div id="timer">00:00.0</div><div id="hearts"></div><div id="h">0 m</div><div id="sndBtn" title="Sound">♪</div><div id="themeBtn" title="Theme">☾</div></div><div id="rivalHud"><span>CPU</span><span class="rhearts" id="rHearts"></span><span id="rH">0 m</span></div><div id="rest" style="position:fixed;left:50%;bottom:70px;transform:translateX(-50%);font:10px monospace;letter-spacing:.12em;opacity:0">RECOVERING</div><div id="p"><div id="f"></div></div><div id="ctrlPad"><button class="ctrlBtn" id="btnL" type="button" aria-label="Move left">◀</button><button class="ctrlBtn" id="btnR" type="button" aria-label="Move right">▶</button></div><div id="w"><div id="invite">
 <div class="inkLogo" aria-label="Ink.link"><i></i><i></i><i></i><b></b></div>
 <div class="lvl" id="lvlLine">LEVEL 01 COMPLETE</div><div id="finalScore"></div>
 <div id="recap">
@@ -59,7 +60,6 @@
 <button id="playAgainBtn" type="button">PLAY AGAIN ↻</button>
 <h1 id="endHeading">YOU MADE IT.<br>WELCOME TO INK.LINK.</h1>
 <p class="sub" id="endSub">This was only the first level.<br><br>What happens next, we can build together.</p>
-<a id="nextLevel" href="level2.html">PLAY LEVEL 2 →</a>
 <a id="join" href="https://github.com/heinerradau/ink.link" target="_blank" rel="noopener noreferrer">SEE MORE →</a>
 <div class="repoHint">INK.LINK ON GITHUB</div><div class="or">HELP BUILD IT OR HEAR WHEN NEW LEVELS DROP</div>
 <form id="inviteForm">
@@ -73,6 +73,15 @@
 const rest=document.querySelector("#rest"),timerEl=document.querySelector("#timer");const c=document.querySelector("#c"),x=c.getContext("2d"),he=document.querySelector("#h"),fi=document.querySelector("#f"),win=document.querySelector("#w"),sndBtn=document.querySelector("#sndBtn"),themeBtn=document.querySelector("#themeBtn");
 let W,H,dpr,floor,playL=0,playR=0,cam=0,tcam=0,camX=0,tcamX=0,maxh=0,L=6900,sh=[],K={l:0,r:0},last=performance.now();
 let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[],impactX=0,respawnX=0,recoveryHop=0,finale=0,finaleT=0,fallPeak=0; const G=1480,B=790,MAX=455,WORLD_W=900;
+// ===== LEVEL 2 "THE FORK" — CPU rival ball =====
+// A second, grey ball climbs the same tree at the same time, driven by a simple AI. Both balls share
+// the exact same physics; when they touch, they shove each other (elastic impulse + a shove kick),
+// so either one can knock the other off a platform. First one to reach the goal ALIVE wins the race.
+// The rival keeps its own hearts: every fatal fall costs it one, and losing all of them ends it early.
+let e={x:0,y:0,vx:0,vy:0,r:11}, eK={l:0,r:0}, eHearts=3, eLifeMaxH=0, eDeath=0, eDeathT=0, eRespawnT=0, eFallPeak=0, eRecoveryHop=0, eStart=0, eTrail=[];
+let raceWinner=0; // 0 = running · 1 = player won · 2 = CPU won
+let eTargetX=null;
+const PUSH_FORCE=430, CPU_SPEED=0.86, CPU_SKILL=0.9, CPU_TOL=25;
 // The death-fatal height, pinned to the ball's own jump physics rather than a bare number.
 // A normal platform bounce (colLine, no fall-boost) peaks at (B*.94)^2/(2G) above the bounce point;
 // a maximally fall-boosted bounce peaks at (B*.94*1.34)^2/(2G). DEATH_ARM_HEIGHT is set to roughly
@@ -95,7 +104,7 @@ let deathSpots=[];
 // respawns — and shows the same hardest/happiest recap the win screen uses, just framed as a run
 // summary instead of a victory. HEART_REGEN_TIME is the only knob: raise it to make the run less
 // forgiving, lower it to make struggling runs easier to recover from.
-const MAX_HEARTS=3,HEART_REGEN_TIME=15;
+const MAX_HEARTS=3,HEART_REGEN_TIME=40;
 let hearts=MAX_HEARTS,heartRegenT=0,isGameOver=0,pendingGameOver=0;
 function updateHearts(){
  const el=document.querySelector("#hearts");if(!el)return;
@@ -106,6 +115,12 @@ function updateHearts(){
    else s+='<span class="heart empty">♥</span>';
  }
  el.innerHTML=s;
+}
+function updateRival(){
+ const el=document.querySelector("#rHearts");
+ if(el){let s="";for(let i=0;i<MAX_HEARTS;i++)s+=i<eHearts?'<span class="heart full">♥</span>':'<span class="heart empty">♥</span>';el.innerHTML=s}
+ const hh=document.querySelector("#rH");
+ if(hh)hh.textContent=Math.max(0,Math.floor((floor-e.y)/10))+" m";
 }
 // How many trail points belonged to genuine mid-run climbing, before the finale flourish (flying up
 // into the ending circle) began. -1 means the run hasn't reached the finale yet (use the whole trail).
@@ -169,9 +184,18 @@ playL=-2000;playR=WORLD_W+2000;build()}
 function ln(dx,y,len,a=0){let xx=Math.max(15,Math.min(WORLD_W/2+dx,WORLD_W-len-15));sh.push({t:"l",x:xx,y:floor-y,len,a})}
 function cr(dx,y,r){sh.push({t:"c",x:WORLD_W/2+dx,y:floor-y,r})}
 function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];hearts=MAX_HEARTS;heartRegenT=0;isGameOver=0;pendingGameOver=0;updateHearts();lifeMaxH=0;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
+// -- Level 2: reset the rival ball too. It starts parked to the left of the player. --
+raceWinner=0;eK={l:0,r:0};eHearts=MAX_HEARTS;eDeath=0;eDeathT=0;eRespawnT=0;eFallPeak=0;eRecoveryHop=0;eLifeMaxH=0;eTrail=[];eTargetX=null;e={x:WORLD_W/2-46,y:floor-180,vx:0,vy:80,r:11};
 [[ -145,102,155,0],[25,216,145,0],[-165,335,140,0],[15,459,155,0],[-160,595,150,-.13],[20,731,150,.16],[-150,871,135,.24],[35,1011,135,-.22],[-175,1156,145,-.32],[20,1304,140,.34]].forEach(q=>ln(...q));
-cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);ln(-150,2310,300,0);
-ln(50,2380,95,.38);ln(-155,2524,90,-.40);ln(45,2673,88,.42);cr(-55,2830,40);ln(-155,2905,310,0);ln(55,2987,105,-.28);ln(-175,3145,95,.35);cr(70,3315,34);ln(-150,3390,300,0);ln(-125,3476,85,-.43);
+cr(-75,1457,48);ln(-150,1545,300,0);ln(45,1606,125,-.18);ln(-165,1759,105,.22);cr(75,1916,42);ln(-155,1995,310,0);ln(-145,2069,100,-.30);cr(-20,2231,36);
+// ===== THE FORK: the trunk splits into two parallel routes here =====
+ln(-60,2310,320,0);
+// Branch A (left route)
+ln(-260,2450,110,.12);ln(-290,2600,105,-.14);cr(-305,2750,32);ln(-290,2900,105,.12);ln(-275,3050,105,-.14);cr(-260,3200,30);ln(-230,3340,115,.12);
+// Branch B (right route)
+ln(160,2450,110,-.12);ln(190,2600,105,.14);cr(205,2750,32);ln(190,2900,105,-.12);ln(175,3050,105,.14);cr(160,3200,30);ln(130,3340,115,-.12);
+// The two branches rejoin into one path
+ln(-50,3480,320,0);
 cr(30,3646,46);ln(-155,3725,310,0);ln(-175,3808,82,.42);ln(55,3969,82,-.42);cr(-45,4131,32);ln(-150,4205,300,0);ln(55,4288,78,.32);ln(-155,4445,78,-.34);cr(55,4607,35);ln(-155,4680,310,0);ln(-125,4760,90,.20);ln(25,4913,110,-.12);ln(-80,5066,160,0);cr(0,5195,72);ln(-105,5325,210,0);
 ln(35,5465,105,.24);ln(-165,5605,95,-.30);cr(65,5765,38);
 ln(-150,5845,300,0);ln(-170,5940,82,.40);ln(55,6095,84,-.42);
@@ -253,6 +277,8 @@ function colLine(s){
  if(d>=m||!d)return;
  // Final large circle: entering its lower/inner area charges and launches the point upward.
  if(s.r>=76 && !finale && (floor-s.y)>6600){
+   // The finish circle is the goal of the race: the first ball to touch it wins.
+   if(!raceWinner)raceWinner=1;
    // Mark exactly where genuine climbing ends and the finale flourish begins, so the recap never
    // mistakes "flying up and away at the very end" for a calm, successful stretch of real play.
    finale=1;finaleT=0;b.x=s.x;b.y=s.y+s.r*.25;b.vx=0;b.vy=0;climbEnd=trail.length;return;
@@ -281,6 +307,37 @@ function splatNow(){
  impactX=b.x;respawnX=WORLD_W/2;
  b.y=floor-b.r;b.vx=0;b.vy=0;fallPeak=0;K.l=K.r=0;
  burst();cam+=(0-cam)*.55;
+}
+function setEndText(kind){
+ const lvl=document.querySelector("#lvlLine"),eh=document.querySelector("#endHeading"),es=document.querySelector("#endSub");
+ lvl.textContent="LEVEL 02 — THE FORK";
+ if(kind==="win"){eh.innerHTML="YOU WON THE RACE.<br>FIRST TO THE TOP.";es.innerHTML="You beat the grey rival to the goal.<br>The whole climb, still drawn in one line."}
+ else if(kind==="lose"){eh.innerHTML="THE RIVAL GOT THERE FIRST.";es.innerHTML="Out-climbed this time. Shove it off a branch — or just move faster."}
+ else if(kind==="rival-out"){eh.innerHTML="THE RIVAL FELL.";es.innerHTML="It ran out of hearts on the way up.<br>You only had to keep climbing."}
+}
+function playerWins(reason){
+ if(raceWinner)return;
+ raceWinner=1;
+ if(reason==="rival-out"){
+   finishTime=performance.now();
+   if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}
+   recordScore(finishTime-runStart);
+   renderRecap();
+   setEndText("rival-out");
+   win.style.display="flex";
+   document.querySelector("#ctrlPad").style.display="none";
+ }
+ // reason==="goal": the normal finale sequence takes over and shows the win screen.
+}
+function cpuWins(){
+ if(raceWinner)return;
+ raceWinner=2;
+ finishTime=performance.now();
+ recordScore(finishTime-runStart);
+ renderRecap();
+ setEndText("lose");
+ win.style.display="flex";
+ document.querySelector("#ctrlPad").style.display="none";
 }
 function gameOver(){
  if(isGameOver||finishTime)return;
@@ -570,6 +627,8 @@ function exportLifeOverview(){
 }
 function up(dt){
  lastDt=dt;upParticles(dt);
+ // Level 2: keep the rival climbing and resolve ball-vs-ball shoves every frame.
+ if(!raceWinner){upEnemy(dt);ballCollide();}
  // Only record the trail while the ball is actually moving under player control (or the finale
  // launch, finale===2) — not while it's lying still through the 5s death/recovery hold (which would
  // otherwise dump ~300 near-duplicate points on the respawn spot per death), not during the brief
@@ -590,7 +649,7 @@ function up(dt){
      b.vy+=G*.36*dt;b.y+=b.vy*dt;
      tcam=b.y-H*.58;cam+=(tcam-cam)*Math.min(1,dt*9);
      maxh=Math.max(maxh,floor-b.y);he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
-     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();win.style.display="flex";document.querySelector("#ctrlPad").style.display="none";finale=3;b.vy=0;sfxWin();}
+     if(finaleT>4.8&&!finishTime){finishTime=performance.now();if(lifeStart!=null){lifeDurations.push(finishTime-lifeStart);lifeStart=null}recordScore(finishTime-runStart);renderRecap();setEndText("win");win.style.display="flex";document.querySelector("#ctrlPad").style.display="none";finale=3;b.vy=0;sfxWin();}
    }
    // finale===3 (post-win): intentionally does nothing here anymore — the ball simply freezes in
    // place instead of continuing to fall forever, unseen, behind the win screen.
@@ -651,12 +710,147 @@ function up(dt){
    }
  }
  he.textContent=Math.floor(maxh/10)+" m";fi.style.height=Math.min(100,maxh/L*100)+"%";
- let sy=b.y-cam;if(sy<H*.36)tcam=b.y-H*.36;else if(sy>H*.7)tcam=Math.min(0,b.y-H*.7);cam+=(tcam-cam)*.07;
+ // Camera follows the player, but eases toward the rival while they're close (so a shove-fight stays
+ // on screen); once they're more than ~1000 units apart it reverts to pure player-follow.
+ const closeF=Math.max(0,1-Math.abs(b.y-e.y)/1000)*0.35;
+ const focusY=b.y+(e.y-b.y)*closeF;
+ let sy=focusY-cam;if(sy<H*.36)tcam=focusY-H*.36;else if(sy>H*.7)tcam=Math.min(0,focusY-H*.7);cam+=(tcam-cam)*.07;
  tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.25;camX+=(tcamX-camX)*.08;
  if(false)win.style.display="flex"
 }
+// ===== LEVEL 2 "THE FORK": rival ball — physics, AI and player<->rival shove collisions =====
+let eLastDt=1/60;
+function colLineE(s){
+ let co=Math.cos(s.a),si=Math.sin(s.a);
+ let x1=s.x,y1=s.y,x2=x1+co*s.len,y2=y1+si*s.len;
+ if(e.vy<=0)return;
+ const barHalf=2.5,hitR=e.r+barHalf;
+ const sx=x2-x1,sy=y2-y1,seg2=sx*sx+sy*sy||1;
+ let t=((e.x-x1)*sx+(e.y-y1)*sy)/seg2;t=Math.max(0,Math.min(1,t));
+ let qx=x1+t*sx,qy=y1+t*sy;
+ let dx=e.x-qx,dy=e.y-qy,d=Math.hypot(dx,dy);
+ let prevX=e.x-e.vx*eLastDt,prevY=e.y-e.vy*eLastDt;
+ let pt=((prevX-x1)*sx+(prevY-y1)*sy)/seg2;pt=Math.max(0,Math.min(1,pt));
+ let pqx=x1+pt*sx,pqy=y1+pt*sy;
+ let pdx=prevX-pqx,pdy=prevY-pqy,pd=Math.hypot(pdx,pdy);
+ if(d>hitR&&pd>hitR)return;
+ let nx,ny;
+ if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
+ let upx=si,upy=-co;
+ if(nx*upx+ny*upy<-.05)return;
+ e.x=qx+nx*(hitR+.35);e.y=qy+ny*(hitR+.35);
+ let dot=e.vx*nx+e.vy*ny;
+ if(dot<0){e.vx-=2*dot*nx;e.vy-=2*dot*ny;eTargetX=null}
+ let fallBoost=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
+ let target=-B*.94*fallBoost;
+ if(e.vy>target)e.vy=target;
+ e.vx+=Math.sin(s.a)*B*.28;
+ e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
+ eFallPeak=0;
+}
+function colCircleE(s){
+ let dx=e.x-s.x,dy=e.y-s.y,d=Math.hypot(dx,dy),m=s.r+e.r;
+ if(d>=m||!d)return;
+ // The final big circle is the finish line for BOTH balls — if the rival touches it first, it wins.
+ if(s.r>=76 && !raceWinner && (floor-s.y)>6600){cpuWins();return}
+ let nx=dx/d,ny=dy/d,dot=e.vx*nx+e.vy*ny;if(dot>=0)return;
+ e.x=s.x+nx*m;e.y=s.y+ny*m;e.vx-=2*dot*nx;e.vy-=2*dot*ny;
+ let boost=Math.max(1,Math.min(1.28,1+(eFallPeak-620)/1500));
+ let sp=Math.max(B*.92*boost,Math.min(B*1.16*boost,Math.hypot(e.vx,e.vy)*1.03)),z=Math.hypot(e.vx,e.vy)||1;
+ e.vx=e.vx/z*sp;e.vy=e.vy/z*sp;eFallPeak=0;
+}
+// Simple, fair rival AI: it aims for the lowest platform still above it, preferring the one whose
+// centre is closest horizontally. That naturally sends it up one branch of the fork and lets it
+// retry when it falls — it is deliberately beatable, not frame-perfect.
+function aiSteer(){
+ if(raceWinner||eDeath){eK.l=0;eK.r=0;return}
+ // Commit to a target and hold course until the rival actually lands (colLineE clears eTargetX on
+ // every genuine bounce). Re-picking every frame made the AI oscillate mid-air.
+ if(eTargetX===null){
+   // Lowest rung above the rival; inside a band of that height prefer the horizontally CLOSEST
+   // platform, so it climbs its own branch of the fork instead of leaping across to the other one.
+   let bandY=-1e9;
+   for(const s of sh){if(s.y>e.y-6)continue;if(s.y>bandY)bandY=s.y}
+   let best=null,bestDist=1e9;
+   for(const s of sh){
+     const py=s.y;
+     if(py>e.y-6||py<bandY-90)continue;
+     const px=s.t==="l"?s.x+s.len*0.5:s.x;
+     const dist=Math.abs(px-e.x);
+     if(dist<bestDist){bestDist=dist;best=px}
+   }
+   if(best===null){eK.l=0;eK.r=0;return}
+   eTargetX=best;
+ }
+ const diff=eTargetX-e.x;
+ // Bang-bang toward the platform centre, then brake against our own velocity once we're close.
+ // (Tested headless: this climbs the whole fork reliably, where smooth PD laws stalled mid-trunk.)
+ if(Math.abs(diff)>CPU_TOL){eK.l=diff<0?1:0;eK.r=diff>0?1:0}
+ else{eK.l=e.vx>0?1:0;eK.r=e.vx<0?1:0}
+}
+function upEnemy(dt){
+ if(raceWinner)return;
+ if(eDeath){
+   if(eDeath===1){
+     e.vy+=G*dt;e.y+=e.vy*dt;
+     if(e.y+e.r>=floor){e.y=floor-e.r;e.vy=0;eDeath=2;eRespawnT=0}
+   } else {
+     eRespawnT+=dt;
+     if(eRespawnT>=3){eDeath=0;eRespawnT=0;eRecoveryHop=3;eLifeMaxH=0;e.x=WORLD_W/2-46;e.y=floor-e.r-2;e.vx=0;e.vy=-B*.48;eK={l:0,r:0};eTargetX=null}
+   }
+   return;
+ }
+ aiSteer();
+ const maxStep=7;
+ let steps=Math.min(48,Math.max(1,Math.ceil(Math.max(Math.abs(e.vx),Math.abs(e.vy))*dt/maxStep)));
+ let sdt=dt/steps;eLastDt=sdt;
+ for(let i=0;i<steps;i++){
+   e.vx+=((eK.r-eK.l)*1650)*sdt;e.vx*=Math.pow(.991,sdt*60);e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
+   e.vy+=G*sdt;if(e.vy>0)eFallPeak=Math.max(eFallPeak,e.vy);e.x+=e.vx*sdt;e.y+=e.vy*sdt;
+   if(e.x<playL+e.r){e.x=playL+e.r;e.vx=Math.abs(e.vx)*.72}
+   if(e.x>playR-e.r){e.x=playR-e.r;e.vx=-Math.abs(e.vx)*.72}
+   for(let s of sh)s.t=="l"?colLineE(s):colCircleE(s);
+   if(raceWinner)return;
+   eLifeMaxH=Math.max(eLifeMaxH,floor-e.y);
+   if(e.y+e.r>=floor){
+     if(eLifeMaxH>=DEATH_ARM_HEIGHT){
+       if(eHearts<=0){playerWins("rival-out");return}
+       eHearts--;eDeath=1;eDeathT=0;eRespawnT=0;eFallPeak=0;e.y=floor-e.r;e.vx=0;e.vy=0;
+       break;
+     } else if(eRecoveryHop>0){
+       e.y=floor-e.r-1;let stage=4-eRecoveryHop;e.vy=-B*(.48+stage*.22);e.vx*=.88;eRecoveryHop--;eTargetX=null;
+     } else {
+       e.y=floor-e.r-1;e.vy=-B*.78;e.vx*=.86;eFallPeak=0;eTargetX=null;
+     }
+     break;
+   }
+ }
+ eTrail.push({x:e.x,y:e.y});
+}
+// Ball-vs-ball contact: separate, exchange normal velocity (equal masses, lively restitution) and add
+// a shove kick so a hit can genuinely knock the other ball off a platform.
+function ballCollide(){
+ if(raceWinner||eDeath||death||finale)return;
+ const dx=e.x-b.x,dy=e.y-b.y,d=Math.hypot(dx,dy),m=b.r+e.r;
+ if(d>=m||d<0.0001)return;
+ const nx=dx/d,ny=dy/d,overlap=m-d;
+ b.x-=nx*overlap*0.5;b.y-=ny*overlap*0.5;
+ e.x+=nx*overlap*0.5;e.y+=ny*overlap*0.5;
+ const bvn=b.vx*nx+b.vy*ny,evn=e.vx*nx+e.vy*ny;
+ const rest=1.25;
+ const nb=((bvn+evn)+rest*(evn-bvn))/2;
+ const ne=((bvn+evn)+rest*(bvn-evn))/2;
+ b.vx+=(nb-bvn)*nx;b.vy+=(nb-bvn)*ny;
+ e.vx+=(ne-evn)*nx;e.vy+=(ne-evn)*ny;
+ const rel=Math.abs(bvn-evn);
+ const shove=PUSH_FORCE*Math.min(1,rel/900);
+ b.vx-=nx*shove*0.5;b.vy-=ny*shove*0.5;
+ e.vx+=nx*shove*0.5;e.vy+=ny*shove*0.5;
+ sfxBounce(Math.min(1,rel/1000),14,"line");
+}
 function dr(){
  rest.style.opacity=death===2?".35":"0";
+ updateRival();
  const pal=PALETTE[theme];
  x.fillStyle=pal.bg;x.fillRect(0,0,W,H);
  let fy=floor-cam;
@@ -668,8 +862,18 @@ function dr(){
    for(let i=1;i<trail.length;i++)x.lineTo(trail[i].x-camX,trail[i].y-cam);
    x.stroke();x.restore();
  }
+ // Level 2: the rival's own ink trail, in grey.
+ if(eTrail.length>1){
+   x.save();x.globalAlpha=.3;x.strokeStyle=theme==="light"?"#8f8f97":"#9c9ca4";x.lineWidth=1;x.lineJoin="round";x.lineCap="round";
+   x.beginPath();x.moveTo(eTrail[0].x-camX,eTrail[0].y-cam);
+   for(let i=1;i<eTrail.length;i++)x.lineTo(eTrail[i].x-camX,eTrail[i].y-cam);
+   x.stroke();x.restore();
+ }
  x.strokeStyle=pal.fg;x.lineWidth=5;x.lineCap="round";
- for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x-camX,y);x.lineTo(s.x-camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x-camX,y,s.r,0,Math.PI*2);x.stroke()}if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(WORLD_W/2-camX,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(WORLD_W/2-camX+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(WORLD_W/2-camX,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
+ for(let s of sh){let y=s.y-cam;if(y<-150||y>H+150)continue;x.beginPath();if(s.t=="l"){x.moveTo(s.x-camX,y);x.lineTo(s.x-camX+Math.cos(s.a)*s.len,y+Math.sin(s.a)*s.len)}else x.arc(s.x-camX,y,s.r,0,Math.PI*2);x.stroke()}
+ // Level 2: the grey rival ball.
+ x.save();x.fillStyle=theme==="light"?"#8f8f97":"#9c9ca4";x.beginPath();x.arc(e.x-camX,e.y-cam,e.r,0,Math.PI*2);x.fill();x.restore();
+ if(finale===1){let q=Math.min(1,finaleT/1.35);x.save();x.globalAlpha=.22+.58*q;x.lineWidth=2+7*q;x.beginPath();x.arc(WORLD_W/2-camX,b.y-cam,72*(1-.2*q),0,Math.PI*2);x.stroke();for(let i=0;i<9;i++){let a=finaleT*(2.2+i*.08)+i*.7,rr=58*(1-q*.55),sz=2+5*q;x.beginPath();x.arc(WORLD_W/2-camX+Math.cos(a)*rr,b.y-cam+Math.sin(a)*rr,sz,0,Math.PI*2);x.fill()}x.beginPath();x.ellipse(WORLD_W/2-camX,b.y-cam,11+8*Math.sin(finaleT*12)**2,11-3*Math.sin(finaleT*12),0,0,Math.PI*2);x.fill();x.restore()}
  // Splatter particles.
  x.fillStyle=pal.fg;
  for(let p of particles){x.globalAlpha=Math.max(0,Math.min(1,p.life));x.beginPath();x.arc(p.x-camX,p.y-cam,p.r,0,Math.PI*2);x.fill()}x.globalAlpha=1;
