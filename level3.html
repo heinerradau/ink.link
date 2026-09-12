@@ -141,15 +141,15 @@ function updateHearts(){
  const el=document.querySelector("#hearts");if(!el)return;
  let s="";
  for(let i=0;i<MAX_HEARTS;i++){
-   if(i<hearts)s+='<span class="heart full">★</span>';
-   else if(i===hearts)s+='<span class="heart regen">★</span>';
-   else s+='<span class="heart empty">★</span>';
+   if(i<hearts)s+='<span class="heart full">♥</span>';
+   else if(i===hearts)s+='<span class="heart regen">♥</span>';
+   else s+='<span class="heart empty">♥</span>';
  }
  el.innerHTML=s;
 }
 function updateRival(){
  const el=document.querySelector("#rHearts");
- if(el){let s="";for(let i=0;i<MAX_HEARTS;i++)s+=i<eHearts?'<span class="heart full">★</span>':'<span class="heart empty">★</span>';el.innerHTML=s}
+ if(el){let s="";for(let i=0;i<MAX_HEARTS;i++)s+=i<eHearts?'<span class="heart full">♥</span>':'<span class="heart empty">♥</span>';el.innerHTML=s}
  const hh=document.querySelector("#rH");
  if(hh)hh.textContent=Math.max(0,Math.floor((floor-e.y)/10))+" m";
 }
@@ -381,10 +381,11 @@ function colLine(s){
      b.vx+=spinVx;                            // the sweeping surface still flicks the ball sideways
      if(spinVy<0)b.vy+=spinVy*.6;             // ...and adds lift when the bar sweeps UP (timing bonus)
      b.vx+=Math.sin(s.a)*B*.28;               // slight nudge along the bar's tilt, like a plain line
-     // TRAMPOLINE GUARANTEE: Set (never add) the upward speed to at least what a plain line gives,
-     // boosted by the same fall-boost, so a fast fall returns MORE than you put in (up to +34%).
+     // BOOST, NOT A FORCED UP-LAUNCH: the bounce above is real angle physics (a steep bar really
+     // does throw you sideways). We only guarantee a MODERATE minimum upward speed so a fast fall
+     // still returns something; the tilt keeps shaping the shot, so it never feels like "always up".
      const fb=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
-     const upTarget=-B*.94*fb;
+     const upTarget=-B*.60*fb;
      if(b.vy>upTarget)b.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover");
      bounceLog.push({x:b.x,y:b.y,s,ti:trail.length});
@@ -934,7 +935,7 @@ function colLineE(s){
      if(spinVy<0)e.vy+=spinVy*.6;
      e.vx+=Math.sin(s.a)*B*.28;
      const fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
-     const upTarget=-B*.94*fb;
+     const upTarget=-B*.60*fb;
      if(e.vy>upTarget)e.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover")}
    e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
