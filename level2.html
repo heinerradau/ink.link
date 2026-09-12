@@ -829,7 +829,7 @@ function up(dt){
  const closeF=Math.max(0,1-Math.abs(b.y-e.y)/1000)*0.35;
  const focusY=b.y+(e.y-b.y)*closeF;
  let sy=focusY-cam;if(sy<H*.36)tcam=focusY-H*.36;else if(sy>H*.7)tcam=Math.min(0,focusY-H*.7);cam+=(tcam-cam)*.07;
- tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.25;camX+=(tcamX-camX)*.08;
+ tcamX=(WORLD_W/2-W/2)+(b.x-WORLD_W/2)*.55;camX+=(tcamX-camX)*.10;
  if(false)win.style.display="flex"
 }
 // ===== LEVEL 2 "THE FORK": rival ball — physics, AI and player<->rival shove collisions =====
