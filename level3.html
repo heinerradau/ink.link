@@ -111,7 +111,7 @@ let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[]
 let e={x:0,y:0,vx:0,vy:0,r:11}, eK={l:0,r:0}, eHearts=3, eLifeMaxH=0, eDeath=0, eDeathT=0, eRespawnT=0, eFallPeak=0, eRecoveryHop=0, eStart=0, eTrail=[];
 let raceWinner=0; // 0 = running · 1 = player won · 2 = CPU won
 let raceTime=0, eMaxH=0;
-let eTargetX=null, eThinkT=0, eSlop=0, eStun=0;
+let eTargetX=null, eThinkT=0, eSlop=0, eStun=0, eReact=0;
 const PUSH_FORCE=430, CPU_SPEED=0.86, CPU_SKILL=0.9, CPU_TOL=25;
 // The death-fatal height, pinned to the ball's own jump physics rather than a bare number.
 // A normal platform bounce (colLine, no fall-boost) peaks at (B*.94)^2/(2G) above the bounce point;
@@ -968,10 +968,14 @@ function aiSteer(dt){
  // HUMAN-ISH CONTROL: the rival "presses keys" in short bursts and only re-decides a few times a
  // second instead of steering frame-perfectly, so it plays like a person, not a machine.
  // After being shoved it is briefly RATTLED (eStun) and cannot counter-steer at all.
- if(eStun>0){eStun-=dt;eK.l=0;eK.r=0;return}
+ // Human reaction chain: the rival SEES the situation, UNDERSTANDS it, then its finger presses the
+ // key — and only then does the input reach the ball. eReact buffers the decision for a beat so it
+ // never looks frame-perfect, but it is NOT frozen (that felt too weak).
+ if(eStun>0){eStun-=dt;eK.l=0;eK.r=0;eReact=0;return}
+ if(eReact>0){eReact-=dt;return}                 // "finger on the way" — hold the previous input
  eThinkT=(eThinkT||0)-dt;
  if(eThinkT>0)return;                 // keep the current key held
- eThinkT=0.16+Math.random()*0.18;     // 160-340 ms between decisions
+ eThinkT=0.22+Math.random()*0.22;     // 220-440 ms between decisions (see -> understand -> press)
  // Commit to a target and hold course until the rival actually lands (colLineE clears eTargetX on
  // every genuine bounce). Re-picking every frame made the AI oscillate mid-air.
  if(eTargetX===null){
@@ -989,6 +993,7 @@ function aiSteer(dt){
    }
    if(best===null){eK.l=0;eK.r=0;return}
    eTargetX=best;
+   eReact=0.10+Math.random()*0.14;               // reaction time before the new input lands
  }
  const diff=eTargetX-e.x;
  // Bang-bang toward the platform centre, then brake against our own velocity once we're close.
@@ -1072,7 +1077,7 @@ function ballCollide(){
  b.vx-=nx*shove*0.5;b.vy-=ny*shove*0.5;
  e.vx+=nx*shove*0.5;e.vy+=ny*shove*0.5;
  // The rival gets knocked off-balance for a moment — it cannot instantly steer back into you.
- eStun=Math.max(eStun,0.45+Math.random()*0.35);
+ eStun=Math.max(eStun,0.12+Math.random()*0.12);
  sfxBounce(Math.min(1,rel/1000),14,"line");
 }
 function dr(){
