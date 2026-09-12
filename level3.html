@@ -355,10 +355,12 @@ function colLine(s){
  if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
 
  if(rot){
-   // REAL surface physics for a spinning bar: the ball bounces off it like off any tilted wall
-   // (angle in = angle out) and is pushed back along the bar's OWN normal — measured live from
-   // where it actually hit. A vertical bar therefore flicks the ball sideways instead of always
-   // launching it upward; a flat bar still launches it up. No invented "up" force.
+   // These bars ARE the way up the tower, so their top face has to behave like a trampoline. The
+   // old version bounced along the bar's OWN normal (angle in = angle out): at 45° that left almost
+   // no lift and at steep angles it actively PUSHED THE BALL DOWN, which is why the spinning bars
+   // felt like dead weight. Now the bounce is still real surface physics, but a guaranteed UPWARD
+   // lift (identical to a plain line, incl. the fall-boost) is applied last so neither the bar's
+   // tilt, the mirror nor its spin can ever rob the ball of height.
    // ONE-SIDED HARDNESS: the bar is solid on its upper face and see-through underneath, so you
    // always fall UP through it and must ride/sweep it instead of being blocked. A near-vertical bar
    // has no "underside" to slip through, so both faces are hard there.
@@ -374,16 +376,16 @@ function colLine(s){
    const overlap=hitR-d;
    if(overlap>0){b.x+=nx*overlap;b.y+=ny*overlap}
    if(vn<0){
-     b.vx-=2*vn*nx;b.vy-=2*vn*ny;             // mirror: angle in = angle out
-     // Set (do NOT add) the outgoing normal speed to the trampoline strength, so bouncing can
-     // never pump free energy into the ball and make it fly off ever faster.
-     // Same energy feel as normal platforms: a fast fall returns MORE than you put in (up to +34%),
-     // so the sweeping bars actually launch you upward instead of just absorbing the hit.
+     b.vx-=2*vn*nx;b.vy-=2*vn*ny;             // mirror: angle in = angle out (keeps the bar feeling solid)
+     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry,spinVy=s.spd*rx;
+     b.vx+=spinVx;                            // the sweeping surface still flicks the ball sideways
+     if(spinVy<0)b.vy+=spinVy*.6;             // ...and adds lift when the bar sweeps UP (timing bonus)
+     b.vx+=Math.sin(s.a)*B*.28;               // slight nudge along the bar's tilt, like a plain line
+     // TRAMPOLINE GUARANTEE: Set (never add) the upward speed to at least what a plain line gives,
+     // boosted by the same fall-boost, so a fast fall returns MORE than you put in (up to +34%).
      const fb=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
-     const outVn=b.vx*nx+b.vy*ny, want=B*.92*fb;
-     if(outVn<want){const add=want-outVn;b.vx+=nx*add;b.vy+=ny*add}
-     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);
-     b.vx+=s.spd*-ry;b.vy+=s.spd*rx;
+     const upTarget=-B*.94*fb;
+     if(b.vy>upTarget)b.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover");
      bounceLog.push({x:b.x,y:b.y,s,ti:trail.length});
    }
@@ -927,10 +929,13 @@ function colLineE(s){
    const overlap=hitR-d;
    if(overlap>0){e.x+=nx*overlap;e.y+=ny*overlap}
    if(vn<0){e.vx-=2*vn*nx;e.vy-=2*vn*ny;
+     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry,spinVy=s.spd*rx;
+     e.vx+=spinVx;
+     if(spinVy<0)e.vy+=spinVy*.6;
+     e.vx+=Math.sin(s.a)*B*.28;
      const fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
-     const outVn=e.vx*nx+e.vy*ny,want=B*.92*fb;
-     if(outVn<want){const add=want-outVn;e.vx+=nx*add;e.vy+=ny*add}
-     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);e.vx+=s.spd*-ry;e.vy+=s.spd*rx;
+     const upTarget=-B*.94*fb;
+     if(e.vy>upTarget)e.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover")}
    e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
    eFallPeak=0;
