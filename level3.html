@@ -377,7 +377,10 @@ function colLine(s){
      b.vx-=2*vn*nx;b.vy-=2*vn*ny;             // mirror: angle in = angle out
      // Set (do NOT add) the outgoing normal speed to the trampoline strength, so bouncing can
      // never pump free energy into the ball and make it fly off ever faster.
-     const outVn=b.vx*nx+b.vy*ny, want=B*.92;
+     // Same energy feel as normal platforms: a fast fall returns MORE than you put in (up to +34%),
+     // so the sweeping bars actually launch you upward instead of just absorbing the hit.
+     const fb=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
+     const outVn=b.vx*nx+b.vy*ny, want=B*.92*fb;
      if(outVn<want){const add=want-outVn;b.vx+=nx*add;b.vy+=ny*add}
      const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);
      b.vx+=s.spd*-ry;b.vy+=s.spd*rx;
@@ -924,7 +927,8 @@ function colLineE(s){
    const overlap=hitR-d;
    if(overlap>0){e.x+=nx*overlap;e.y+=ny*overlap}
    if(vn<0){e.vx-=2*vn*nx;e.vy-=2*vn*ny;
-     const outVn=e.vx*nx+e.vy*ny,want=B*.92;
+     const fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
+     const outVn=e.vx*nx+e.vy*ny,want=B*.92*fb;
      if(outVn<want){const add=want-outVn;e.vx+=nx*add;e.vy+=ny*add}
      const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y);e.vx+=s.spd*-ry;e.vy+=s.spd*rx;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover")}
