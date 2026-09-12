@@ -256,49 +256,49 @@ function rb(dx,y,len,spd,mode="mid",phase=0){sh.push({t:"r",ax:WORLD_W/2+dx,ay:f
 function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];hearts=MAX_HEARTS;heartRegenT=0;isGameOver=0;pendingGameOver=0;updateHearts();lifeMaxH=0;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 // -- Level 2: reset the rival ball too. It starts parked to the left of the player. --
 raceWinner=0;eK={l:0,r:0};eHearts=MAX_HEARTS;eDeath=0;eDeathT=0;eRespawnT=0;eFallPeak=0;eRecoveryHop=0;eLifeMaxH=0;eTrail=[];eTargetX=null;e={x:WORLD_W/2-46,y:floor-180,vx:0,vy:80,r:11};
-// ══ NEW WORLD: plain platforms are spaced apart, and the SWEEPING BARS are the way up ══
+// ══ NEW WORLD: bars mostly pivot at one END and are offset left/right of centre ══
 ln(-70,116,230,.06);
-rb(45,266,175,0.3,"end",0.0);
+rb(-95,266,175,0.3,"end",0.0);
 ln(-50,416,205,0);
-rb(35,566,175,-0.3,"mid",1.2);
+rb(100,566,175,-0.3,"end",1.2);
 ln(-50,716,205,0);
-rb(45,866,175,0.3,"end",2.4);
+rb(-60,866,175,0.3,"mid",2.4);
 ln(-50,1016,205,0);
-rb(35,1166,175,-0.3,"mid",0.5);
+rb(85,1166,175,-0.3,"end",0.5);
 ln(-50,1316,205,0);
-rb(45,1466,175,0.3,"end",1.7);
+rb(-110,1466,175,0.3,"end",1.7);
 ln(-50,1616,205,0);
-rb(35,1766,175,-0.3,"mid",2.9);
+rb(70,1766,175,-0.3,"mid",2.9);
 ln(-50,1916,205,0);
-rb(45,2066,175,0.3,"end",0.9);
+rb(-80,2066,175,0.3,"end",0.9);
 ln(-50,2216,205,0);
-rb(35,2366,175,-0.3,"mid",2.1);
+rb(110,2366,175,-0.3,"end",2.1);
 ln(-50,2516,205,0);
-rb(45,2666,175,0.3,"end",0.2);
+rb(-50,2666,175,0.3,"mid",0.2);
 ln(-50,2816,205,0);
-rb(35,2966,175,-0.3,"mid",1.4);
+rb(90,2966,175,-0.3,"end",1.4);
 ln(-50,3116,205,0);
-rb(45,3266,175,0.3,"end",2.6);
+rb(-100,3266,175,0.3,"end",2.6);
 ln(-50,3416,205,0);
-rb(35,3566,175,-0.3,"mid",0.6);
+rb(75,3566,175,-0.3,"mid",0.6);
 ln(-50,3716,205,0);
-rb(45,3866,175,0.3,"end",1.8);
+rb(-85,3866,175,0.3,"end",1.8);
 ln(-50,4016,205,0);
-rb(35,4166,175,-0.3,"mid",3.0);
+rb(105,4166,175,-0.3,"end",3.0);
 ln(-50,4316,205,0);
-rb(45,4466,175,0.3,"end",1.1);
+rb(-65,4466,175,0.3,"mid",1.1);
 ln(-50,4616,205,0);
-rb(35,4766,175,-0.3,"mid",2.3);
+rb(95,4766,175,-0.3,"end",2.3);
 ln(-50,4916,205,0);
-rb(45,5066,175,0.3,"end",0.4);
+rb(-95,5066,175,0.3,"end",0.4);
 ln(-50,5216,205,0);
-rb(35,5366,175,-0.3,"mid",1.6);
+rb(100,5366,175,-0.3,"end",1.6);
 ln(-50,5516,205,0);
-rb(45,5666,175,0.3,"end",2.8);
+rb(-60,5666,175,0.3,"mid",2.8);
 ln(-50,5816,205,0);
-rb(35,5966,175,-0.3,"mid",0.8);
+rb(85,5966,175,-0.3,"end",0.8);
 ln(-50,6116,205,0);
-rb(45,6266,175,0.3,"end",2.0);
+rb(-110,6266,175,0.3,"end",2.0);
 ln(-50,6416,205,0);
 cr(0,6560,58);
 goal(0,6760,80);
@@ -361,9 +361,15 @@ function colLine(s){
    // has no "underside" to slip through, so both faces are hard there.
    const vertical=Math.abs(si)>0.93;
    if(!vertical && ny>0.02) return;
-   b.x=qx+nx*(hitR+.35);
-   b.y=qy+ny*(hitR+.35);
+   // Only treat this as a contact while the ball is actually MOVING INTO the bar. Without this,
+   // a sweeping bar would still "snap" a ball that is already moving away — the little magnet/jolt
+   // you could feel on approach. No approach velocity => no contact at all.
    const vn=b.vx*nx+b.vy*ny;
+   if(vn>=-6) return;
+   // Pull the ball out only along the normal, and only by the overlap that actually exists, so a
+   // graze nudges it a hair instead of yanking it onto the surface.
+   const overlap=hitR-d;
+   if(overlap>0){b.x+=nx*overlap;b.y+=ny*overlap}
    if(vn<0){
      b.vx-=2*vn*nx;b.vy-=2*vn*ny;             // mirror: angle in = angle out
      // Set (do NOT add) the outgoing normal speed to the trampoline strength, so bouncing can
@@ -910,8 +916,10 @@ function colLineE(s){
  if(rot){
    const vertical=Math.abs(si)>0.93;
    if(!vertical && ny>0.02) return;
-   e.x=qx+nx*(hitR+.35);e.y=qy+ny*(hitR+.35);
    const vn=e.vx*nx+e.vy*ny;
+   if(vn>=-6) return;
+   const overlap=hitR-d;
+   if(overlap>0){e.x+=nx*overlap;e.y+=ny*overlap}
    if(vn<0){e.vx-=2*vn*nx;e.vy-=2*vn*ny;
      const outVn=e.vx*nx+e.vy*ny,want=B*.92;
      if(outVn<want){const add=want-outVn;e.vx+=nx*add;e.vy+=ny*add}
