@@ -256,69 +256,47 @@ function rb(dx,y,len,spd,mode="mid",phase=0){sh.push({t:"r",ax:WORLD_W/2+dx,ay:f
 function build(){sh=[];cam=tcam=maxh=0;death=splat=deathT=respawnT=finale=finaleT=0;particles=[];trail=[];deathSpots=[];climbEnd=-1;bounceLog=[];hearts=MAX_HEARTS;heartRegenT=0;isGameOver=0;pendingGameOver=0;updateHearts();lifeMaxH=0;b={x:WORLD_W/2,y:floor-180,vx:0,vy:80,r:11};camX=tcamX=b.x-W/2;
 // -- Level 2: reset the rival ball too. It starts parked to the left of the player. --
 raceWinner=0;eK={l:0,r:0};eHearts=MAX_HEARTS;eDeath=0;eDeathT=0;eRespawnT=0;eFallPeak=0;eRecoveryHop=0;eLifeMaxH=0;eTrail=[];eTargetX=null;e={x:WORLD_W/2-46,y:floor-180,vx:0,vy:80,r:11};
-// ══ NEW WORLD: a tight zig-zag of rings & seesawing bars (no trunk, no fork) ══
-// Kept deliberately compact (gaps ~95-110) so the climb flows, and so the CPU rival can keep up.
-ln(-70,116,240,.06);
-ln(-55,224,220,0);
-rb(30,330,170,0.18,"mid",0);
-ln(-40,438,220,0);
-rb(20,546,170,-0.18,"mid",1.2);
-ln(-50,654,220,0);
-rb(25,762,170,0.18,"mid",2.4);
-ln(-45,870,220,0);
-rb(15,978,170,-0.18,"mid",0.6);
-ln(-55,1086,220,0);
-// big hub ring the climb wraps around
-cr(0,1220,78);
-ln(-65,1330,230,.10);
-rb(25,1438,170,-0.18,"mid",1.8);
-ln(-45,1546,220,0);
-rb(20,1654,170,0.18,"mid",3.0);
-ln(-55,1762,220,0);
-rb(15,1870,170,-0.18,"mid",1.1);
-ln(-45,1978,220,0);
-rb(25,2086,170,0.18,"mid",2.3);
-ln(-55,2194,220,0);
-rb(20,2302,170,-0.18,"mid",0.5);
-ln(-45,2410,220,0);
-rb(15,2518,170,0.18,"mid",1.7);
-ln(-55,2626,220,0);
-rb(25,2734,170,-0.18,"mid",2.9);
-ln(-45,2842,220,0);
-rb(20,2950,170,0.18,"mid",1.0);
-ln(-55,3058,220,0);
-rb(15,3166,170,-0.18,"mid",2.2);
-ln(-45,3274,220,0);
-rb(25,3382,170,0.18,"mid",0.4);
-ln(-55,3490,220,0);
-rb(20,3598,170,-0.18,"mid",1.6);
-ln(-45,3706,220,0);
-rb(15,3814,170,0.18,"mid",2.8);
-ln(-55,3922,220,0);
-rb(25,4030,170,-0.18,"mid",1.4);
-ln(-45,4138,220,0);
-rb(20,4246,170,0.18,"mid",2.6);
-ln(-55,4354,220,0);
-rb(15,4462,170,-0.18,"mid",0.8);
-ln(-45,4570,220,0);
-rb(25,4678,170,0.18,"mid",2.0);
-ln(-55,4786,220,0);
-rb(20,4894,170,-0.18,"mid",1.3);
-ln(-45,5002,220,0);
-rb(15,5110,170,0.18,"mid",2.5);
-ln(-55,5218,220,0);
-rb(25,5326,170,-0.18,"mid",0.7);
-ln(-45,5434,220,0);
-rb(20,5542,170,0.18,"mid",1.9);
-ln(-55,5650,220,0);
-rb(15,5758,170,-0.18,"mid",3.1);
-ln(-45,5866,220,0);
-rb(25,5974,170,0.18,"mid",1.2);
-ln(-55,6082,220,0);
-rb(20,6190,170,-0.18,"mid",2.4);
-ln(-45,6298,220,0);
-rb(15,6406,170,0.18,"mid",0.6);
-cr(0,6540,60);
+// ══ NEW WORLD: plain platforms are spaced apart, and the SWEEPING BARS are the way up ══
+// Bars are one-sided (solid on top, see-through from below), so you ride their sweep.
+ln(-70,116,230,.06);
+rb(45,300,175,0.30,"end",0);
+ln(-55,470,205,0);
+rb(35,640,175,0.30,"mid",1.2);
+ln(-45,810,205,0);
+rb(25,980,175,0.30,"end",2.4);
+ln(-55,1150,205,0);
+cr(0,1290,74);
+rb(15,1450,175,0.30,"mid",0.6);
+ln(-45,1620,205,0);
+rb(30,1790,175,0.30,"end",1.8);
+ln(-55,1960,205,0);
+rb(20,2130,175,0.30,"mid",3.0);
+ln(-45,2300,205,0);
+rb(35,2470,175,0.30,"end",1.1);
+ln(-55,2640,205,0);
+rb(25,2810,175,0.30,"mid",2.3);
+ln(-45,2980,205,0);
+rb(15,3150,175,0.30,"end",0.5);
+ln(-55,3320,205,0);
+rb(30,3490,175,0.30,"mid",1.7);
+ln(-45,3660,205,0);
+rb(20,3830,175,0.30,"end",2.9);
+ln(-55,4000,205,0);
+rb(35,4170,175,0.30,"mid",1.0);
+ln(-45,4340,205,0);
+rb(25,4510,175,0.30,"end",2.2);
+ln(-55,4680,205,0);
+rb(15,4850,175,0.30,"mid",0.4);
+ln(-45,5020,205,0);
+rb(30,5190,175,0.30,"end",1.6);
+ln(-55,5360,205,0);
+rb(20,5530,175,0.30,"mid",2.8);
+ln(-45,5700,205,0);
+rb(35,5870,175,0.30,"end",1.4);
+ln(-55,6040,205,0);
+rb(25,6210,175,0.30,"mid",2.6);
+ln(-45,6380,205,0);
+cr(0,6520,58);
 // ══ GOAL: a big ring to finish inside ══
 goal(0,6760,80);
 ln(-110,6900,220,0)}
@@ -375,6 +353,11 @@ function colLine(s){
    // (angle in = angle out) and is pushed back along the bar's OWN normal — measured live from
    // where it actually hit. A vertical bar therefore flicks the ball sideways instead of always
    // launching it upward; a flat bar still launches it up. No invented "up" force.
+   // ONE-SIDED HARDNESS: the bar is solid on its upper face and see-through underneath, so you
+   // always fall UP through it and must ride/sweep it instead of being blocked. A near-vertical bar
+   // has no "underside" to slip through, so both faces are hard there.
+   const vertical=Math.abs(si)>0.93;
+   if(!vertical && ny>0.02) return;
    b.x=qx+nx*(hitR+.35);
    b.y=qy+ny*(hitR+.35);
    const vn=b.vx*nx+b.vy*ny;
@@ -802,10 +785,10 @@ function up(dt){
      const nx=s.baseX+Math.sin(s.ph)*s.ox, ny=s.baseY+Math.sin(s.ph)*s.oy;
      s.dx0=nx-s.x;s.dy0=ny-s.y;s.x=nx;s.y=ny;
    } else if(s.t==="r"){
-     // The bars SEESAW around the horizontal (they still pivot on a black hub), instead of spinning
-     // a full 360deg. That keeps the "rotating platform" idea while making landings fair: with true
-     // angle physics a fully vertical bar would flick the ball sideways every time.
-     const th=s.ph+Math.sin(worldT*s.spd*2.2)*0.72, c=Math.cos(th), si=Math.sin(th);
+     // Bars sweep a full turn around their hub. Because they are ONE-SIDED (solid on top,
+     // see-through from below) a full spin is fair: you fall up through the underside and only the
+     // top face bounces you. A bar caught dead-vertical is solid on both faces.
+     const th=s.ph+worldT*s.spd, c=Math.cos(th), si=Math.sin(th);
      const px=s.mode==="mid"?s.ax-c*s.len*0.5:s.ax;
      const py=s.mode==="mid"?s.ay-si*s.len*0.5:s.ay;
      s.dx0=px-s.x;s.dy0=py-s.y;s.x=px;s.y=py;s.a=th;
@@ -922,6 +905,8 @@ function colLineE(s){
  let nx,ny;
  if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
  if(rot){
+   const vertical=Math.abs(si)>0.93;
+   if(!vertical && ny>0.02) return;
    e.x=qx+nx*(hitR+.35);e.y=qy+ny*(hitR+.35);
    const vn=e.vx*nx+e.vy*ny;
    if(vn<0){e.vx-=2*vn*nx;e.vy-=2*vn*ny;
