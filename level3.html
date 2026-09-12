@@ -111,7 +111,7 @@ let b={x:0,y:0,vx:0,vy:0,r:11}, splat=0,death=0,deathT=0,respawnT=0,particles=[]
 let e={x:0,y:0,vx:0,vy:0,r:11}, eK={l:0,r:0}, eHearts=3, eLifeMaxH=0, eDeath=0, eDeathT=0, eRespawnT=0, eFallPeak=0, eRecoveryHop=0, eStart=0, eTrail=[];
 let raceWinner=0; // 0 = running · 1 = player won · 2 = CPU won
 let raceTime=0, eMaxH=0;
-let eTargetX=null;
+let eTargetX=null, eThinkT=0, eSlop=0;
 const PUSH_FORCE=430, CPU_SPEED=0.86, CPU_SKILL=0.9, CPU_TOL=25;
 // The death-fatal height, pinned to the ball's own jump physics rather than a bare number.
 // A normal platform bounce (colLine, no fall-boost) peaks at (B*.94)^2/(2G) above the bounce point;
@@ -959,8 +959,13 @@ function colCircleE(s){
 // Simple, fair rival AI: it aims for the lowest platform still above it, preferring the one whose
 // centre is closest horizontally. That naturally sends it up one branch of the fork and lets it
 // retry when it falls — it is deliberately beatable, not frame-perfect.
-function aiSteer(){
+function aiSteer(dt){
  if(raceWinner||eDeath){eK.l=0;eK.r=0;return}
+ // HUMAN-ISH CONTROL: the rival "presses keys" in short bursts and only re-decides a few times a
+ // second (100-220 ms) instead of steering frame-perfectly, so it plays like a person, not a machine.
+ eThinkT=(eThinkT||0)-dt;
+ if(eThinkT>0)return;                 // keep the current key held
+ eThinkT=0.10+Math.random()*0.12;
  // Commit to a target and hold course until the rival actually lands (colLineE clears eTargetX on
  // every genuine bounce). Re-picking every frame made the AI oscillate mid-air.
  if(eTargetX===null){
@@ -982,8 +987,11 @@ function aiSteer(){
  const diff=eTargetX-e.x;
  // Bang-bang toward the platform centre, then brake against our own velocity once we're close.
  // (Tested headless: this climbs the whole fork reliably, where smooth PD laws stalled mid-trunk.)
- if(Math.abs(diff)>CPU_TOL){eK.l=diff<0?1:0;eK.r=diff>0?1:0}
+ // Aim at the platform centre, but with human slop: it brakes late or drifts past sometimes.
+ const slop=CPU_TOL+(eSlop||0);
+ if(Math.abs(diff)>slop){eK.l=diff<0?1:0;eK.r=diff>0?1:0}
  else{eK.l=e.vx>0?1:0;eK.r=e.vx<0?1:0}
+ if(Math.random()<0.18){eSlop=(Math.random()*2-1)*26}
 }
 function upEnemy(dt){
  if(raceWinner)return;
@@ -997,7 +1005,7 @@ function upEnemy(dt){
    }
    return;
  }
- aiSteer();
+ aiSteer(dt);
  const maxStep=7;
  let steps=Math.min(48,Math.max(1,Math.ceil(Math.max(Math.abs(e.vx),Math.abs(e.vy))*dt/maxStep)));
  let sdt=dt/steps;eLastDt=sdt;
