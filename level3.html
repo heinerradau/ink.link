@@ -377,15 +377,17 @@ function colLine(s){
    if(overlap>0){b.x+=nx*overlap;b.y+=ny*overlap}
    if(vn<0){
      b.vx-=2*vn*nx;b.vy-=2*vn*ny;             // mirror: angle in = angle out (keeps the bar feeling solid)
-     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry,spinVy=s.spd*rx;
-     b.vx+=spinVx;                            // the sweeping surface still flicks the ball sideways
-     if(spinVy<0)b.vy+=spinVy*.6;             // ...and adds lift when the bar sweeps UP (timing bonus)
-     b.vx+=Math.sin(s.a)*B*.28;               // slight nudge along the bar's tilt, like a plain line
-     // BOOST, NOT A FORCED UP-LAUNCH: the bounce above is real angle physics (a steep bar really
-     // does throw you sideways). We only guarantee a MODERATE minimum upward speed so a fast fall
-     // still returns something; the tilt keeps shaping the shot, so it never feels like "always up".
+     // A light "slice" (like brushing a ping-pong ball): hitting a slanted bar while steering into it
+     // nudges the shot a little that way. Deliberately SMALL — the spin must never let you climb a
+     // steep/underside bar, which is what made it feel broken.
+     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry*.35,spinVy=s.spd*rx*.35;
+     b.vx+=spinVx;
+     if(spinVy<0)b.vy+=spinVy*.35;
+     b.vx+=Math.sin(s.a)*B*.10;
+     // BOOST like a normal line (The Fork feel): a fast fall returns MORE than you put in (up to +34%),
+     // applied last so the bounce always has real upward energy — but the tilt still shapes the shot.
      const fb=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
-     const upTarget=-B*.60*fb;
+     const upTarget=-B*.90*fb;
      if(b.vy>upTarget)b.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover");
      bounceLog.push({x:b.x,y:b.y,s,ti:trail.length});
@@ -930,12 +932,12 @@ function colLineE(s){
    const overlap=hitR-d;
    if(overlap>0){e.x+=nx*overlap;e.y+=ny*overlap}
    if(vn<0){e.vx-=2*vn*nx;e.vy-=2*vn*ny;
-     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry,spinVy=s.spd*rx;
+     const rx=qx-(s.ax||s.x),ry=qy-(s.ay||s.y),spinVx=s.spd*-ry*.35,spinVy=s.spd*rx*.35;
      e.vx+=spinVx;
-     if(spinVy<0)e.vy+=spinVy*.6;
-     e.vx+=Math.sin(s.a)*B*.28;
+     if(spinVy<0)e.vy+=spinVy*.35;
+     e.vx+=Math.sin(s.a)*B*.10;
      const fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
-     const upTarget=-B*.60*fb;
+     const upTarget=-B*.90*fb;
      if(e.vy>upTarget)e.vy=upTarget;
      sfxBounce(Math.min(1,-vn/1100),s.len,"mover")}
    e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
@@ -950,7 +952,7 @@ function colLineE(s){
  let fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
  let tg=-B*.94*fb;
  if(e.vy>tg)e.vy=tg;
- e.vx+=Math.sin(s.a)*B*.28;
+ e.vx+=Math.sin(s.a)*B*.10;
  e.vx=Math.max(-MAX,Math.min(MAX,e.vx));
  eFallPeak=0;
 }
