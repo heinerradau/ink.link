@@ -353,6 +353,11 @@ function colLine(s){
 
  let nx,ny;
  if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
+ // Near a bar's END the closest point is the endpoint and the raw normal points radially OUT of it —
+ // which, for a ball above the tip, is straight UP no matter how steep the bar is. That is exactly what
+ // let a slanted bar throw the ball vertically. On the caps we use the bar's OWN surface normal.
+ const cap=(t<0.02||t>0.98);
+ if(cap){const pnx=si,pny=-co,sg=(dx*pnx+dy*pny)>=0?1:-1;nx=pnx*sg;ny=pny*sg}
 
  if(rot){
    // These bars ARE the way up the tower, so their top face has to behave like a trampoline. The
@@ -385,10 +390,12 @@ function colLine(s){
      if(spinVy<0)b.vy+=spinVy*.35;
      b.vx+=Math.sin(s.a)*B*.10;
      // BOOST ALONG THE BAR'S OWN NORMAL (not straight up): a flat bar catapults you high, a slanted
-     // bar sends you off at its angle — that is why hitting a steep bar can no longer launch you up
-     // it. Fast falls still return MORE than you put in (up to +34%).
+     // bar sends you off at its angle. NEW: the boost also scales with how hard you actually HIT the
+     // bar — a real fall gets the full kick (plus the fall-boost), but gently LEANING into a slanted
+     // bar (the soft contact you get when you press against it) now only nudges you. That full-power
+     // kick on a soft touch was exactly what let you "ride a slant upward".
      const fb=Math.max(1,Math.min(1.34,1+(fallPeak-620)/1350));
-     const want=B*.90*fb;
+     const want=B*.90*fb*Math.min(1,Math.abs(vn)/(B*.30));
      const outVn=b.vx*nx+b.vy*ny;
      if(outVn<want){const add=want-outVn;b.vx+=nx*add;b.vy+=ny*add}
      // Small vertical floor only, so a glancing hit never just drops you dead.
@@ -929,6 +936,9 @@ function colLineE(s){
  if(d>hitR&&pd>hitR)return;
  let nx,ny;
  if(d>0.0001){nx=dx/d;ny=dy/d}else{nx=si;ny=-co}
+ // near a bar's END use the bar's own surface normal (see colLine)
+ const capE=(t<0.02||t>0.98);
+ if(capE){const pnx=si,pny=-co,sg=(dx*pnx+dy*pny)>=0?1:-1;nx=pnx*sg;ny=pny*sg}
  if(rot){
    const vertical=Math.abs(si)>0.93;
    if(!vertical && ny>0.02) return;
@@ -941,8 +951,9 @@ function colLineE(s){
      e.vx+=spinVx;
      if(spinVy<0)e.vy+=spinVy*.35;
      e.vx+=Math.sin(s.a)*B*.10;
+     // same hit-scaled boost as the player (see colLine)
      const fb=Math.max(1,Math.min(1.34,1+(eFallPeak-620)/1350));
-     const want=B*.90*fb;
+     const want=B*.90*fb*Math.min(1,Math.abs(vn)/(B*.30));
      const outVn=e.vx*nx+e.vy*ny;
      if(outVn<want){const add=want-outVn;e.vx+=nx*add;e.vy+=ny*add}
      const minUp=-B*.34*fb;
@@ -1171,7 +1182,7 @@ function renderScores(list,label){const q=(list||[]).filter(v=>v&&typeof v==="ob
 async function showScores(){try{const r=await fetch(SCOREBOARD_URL+"/api/scores?limit=10&level=2");if(!r.ok)throw new Error("offline");const d=await r.json();renderScores(d.scores,"TOP RACE TIMES · GLOBAL")}catch(_){renderScores(loadLocalScores(),"TOP RACE TIMES · THIS DEVICE")}}
 function recordScore(ms){pendingScore=ms;document.querySelector("#finalScore").textContent=formatScore(ms);showScores()}
 const scoreForm=document.querySelector("#scoreForm"),playerName=document.querySelector("#playerName"),scoreStatus=document.querySelector("#scoreStatus"),scoreSubmit=document.querySelector("#scoreSubmit");
-scoreForm.addEventListener("submit",async e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}scoreSubmit.disabled=true;scoreStatus.textContent="SAVING…";let globalOk=false;try{const r=await fetch(SCOREBOARD_URL+"/api/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,ms:pendingScore,level:3})});if(r.ok)globalOk=true}catch(_){}let q=loadLocalScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l2-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent=globalOk?"SCORE SAVED · GLOBAL":"SAVED ON THIS DEVICE (OFFLINE)";scoreSubmit.disabled=true;playerName.disabled=true});
+scoreForm.addEventListener("submit",async e=>{e.preventDefault();const name=playerName.value.trim().replace(/\s+/g," ").slice(0,24);if(!name){playerName.focus();return}scoreSubmit.disabled=true;scoreStatus.textContent="SAVING…";let globalOk=false;try{const r=await fetch(SCOREBOARD_URL+"/api/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,ms:pendingScore,level:3})});if(r.ok)globalOk=true}catch(_){}let q=loadLocalScores();q.push({name:name,ms:pendingScore,at:new Date().toISOString()});q=q.filter(v=>v&&Number.isFinite(v.ms)&&v.name).sort((a,b)=>a.ms-b.ms).slice(0,10);try{localStorage.setItem("inklink-l3-scores",JSON.stringify(q))}catch(_){}showScores();scoreStatus.textContent=globalOk?"SCORE SAVED · GLOBAL":"SAVED ON THIS DEVICE (OFFLINE)";scoreSubmit.disabled=true;playerName.disabled=true});
 document.querySelector("#exportBtn").addEventListener("click",e=>{e.stopPropagation();exportLifeOverview()});
 document.querySelector("#playAgainBtn").addEventListener("click",e=>{e.stopPropagation();location.reload()});
 function loop(t){let dt=Math.min((t-last)/1000,1/30);last=t;up(dt);let elapsed=((finishTime>0?finishTime:performance.now())-runStart)/1000;let mm=Math.floor(elapsed/60),ss=elapsed-mm*60;timerEl.textContent=String(mm).padStart(2,"0")+":"+ss.toFixed(1).padStart(4,"0");dr();requestAnimationFrame(loop)}addEventListener("resize",rs);rs();requestAnimationFrame(loop);
